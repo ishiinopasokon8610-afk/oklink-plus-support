@@ -19,36 +19,75 @@
         .btn:active { transform: translateY(3px); box-shadow: none; }
         .btn-orange { background: #e67e22; } .btn-blue { background: #3498db; }
         .btn-green { background: #2ecc71; } .btn-red { background: #e74c3c; }
-        .btn-purple { background: #9b59b6; } .btn-dark { background: #34495e; }
         
-        /* パネル・カード */
+        /* パネル */
         #login-screen { display: flex; justify-content: center; align-items: center; height: 80vh; }
         .login-box { background: white; padding: 40px; border-radius: 15px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         .panel { display: none; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 20px; }
         .section-title { border-left: 5px solid #f39c12; padding-left: 10px; margin-top: 0; }
         
-        .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px; margin-top: 15px; }
-        .card { background: #fff; border: 2px solid #eee; border-radius: 10px; overflow: hidden; position: relative; transition: transform 0.2s; display: flex; flex-direction: column; justify-content: space-between; }
-        .card img { width: 100%; display: block; border-bottom: 1px solid #eee; background: white; min-height: 150px; object-fit: contain;}
-        .card-name { padding: 10px; text-align: center; font-weight: bold; background: #fafafa; margin: 0; color: #e67e22;}
+        /* 📊 モニタリング用グリッド（いただいた画像風の表） */
+        .monitor-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); /* 小さくたくさん並べる */
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .monitor-card {
+            background: #fff;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .monitor-card img {
+            width: 100%;
+            height: 120px; /* 固定の高さで揃える */
+            object-fit: contain;
+            background: white;
+            border-bottom: 1px solid #eee;
+        }
+        .monitor-name {
+            padding: 5px;
+            text-align: center;
+            font-size: 14px;
+            font-weight: bold;
+            margin: 0;
+            background: #f8f9fa;
+            color: #333;
+        }
+        .monitor-away {
+            height: 120px;
+            background: #fff3e0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: #d35400;
+            font-size: 12px;
+            font-weight: bold;
+            border-bottom: 1px solid #eee;
+        }
+
+        /* 提出物用グリッド（少し大きめ） */
+        .submission-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; margin-top: 15px; }
         
-        /* 🎨 マイボード（キャンバス＆スタンプ） */
+        /* 🎨 マイボード */
         .board-area { display: flex; flex-direction: column; gap: 10px; align-items: center; }
         .tool-bar { background: #ecf0f1; padding: 10px 20px; border-radius: 30px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; justify-content: center; }
         .tool-bar input[type="color"] { width: 35px; height: 35px; border: none; border-radius: 50%; cursor: pointer; padding: 0; background: none; }
         
-        /* 💡 スタンプを動かすためのコンテナ */
         #canvas-container { position: relative; width: 100%; max-width: 600px; }
         #student-canvas { border: 2px dashed #bdc3c7; background: #fff; border-radius: 10px; cursor: crosshair; touch-action: none; width: 100%; height: 400px; display: block; }
-        .draggable-stamp { position: absolute; cursor: grab; user-select: none; font-size: 50px; transform: translate(-50%, -50%); text-shadow: 2px 2px 4px rgba(0,0,0,0.2); z-index: 100;}
+        .draggable-stamp { position: absolute; cursor: grab; user-select: none; font-size: 50px; transform: translate(-50%, -50%); z-index: 100;}
         .draggable-stamp:active { cursor: grabbing; }
         
-        /* 🔒 各種最前面オーバーレイ */
+        /* 🔒 オーバーレイ */
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); z-index: 9998; display: none; justify-content: center; align-items: center; flex-direction: column; color: white; text-align: center; backdrop-filter: blur(5px); }
-        .overlay-box { background: white; color: #333; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center; max-width: 80%; }
-        
         #force-share-overlay { background:rgba(0,0,0,0.95); z-index:9999; }
-        #teacher-broadcast-img { width: 90%; max-width: 1000px; border-radius: 10px; box-shadow: 0 0 20px rgba(255,255,255,0.2); }
+        #teacher-broadcast-img { width: 90%; max-width: 1000px; border-radius: 10px; }
         #sparkle-overlay { pointer-events: none; z-index: 10000; background: transparent; }
     </style>
 </head>
@@ -57,14 +96,6 @@
     <div id="lock-overlay" class="overlay">
         <h1 style="color: #f1c40f; font-size: 40px;">🔒 先生が画面操作を制限しています</h1>
         <p style="font-size: 24px;">先生の話を聞きましょう👀👂</p>
-    </div>
-
-    <div id="screen-share-prompt-overlay" class="overlay" style="z-index: 9997;">
-        <div class="overlay-box">
-            <h2 style="color: #e67e22; margin-top: 0;">📡 先生が画面の確認を求めています</h2>
-            <p>下のボタンを押して共有を開始してください。</p>
-            <button class="btn btn-blue" style="font-size: 18px; padding: 15px 30px;" onclick="startAutoStreaming()">画面を共有する</button>
-        </div>
     </div>
 
     <div id="force-share-overlay" class="overlay">
@@ -101,22 +132,21 @@
                 </div>
 
                 <div style="flex: 1; min-width: 300px; background: #e8f8f5; padding: 15px; border-radius: 10px;">
-                    <h3 style="margin-top:0;">📡 モニタリング・強制共有</h3>
-                    <button class="btn btn-blue" onclick="requestStudentScreens()">みんなの画面を見る (モニタリング開始)</button>
-                    <hr style="border-top:1px dashed #ccc; margin: 15px 0;">
+                    <h3 style="margin-top:0;">📡 先生の画面を共有</h3>
                     <button class="btn btn-red" onclick="startTeacherBroadcast()">先生の画面を強制共有</button>
                     <button class="btn" style="background:#7f8c8d;" onclick="stopTeacherBroadcast()">強制共有を解除</button>
+                    <p style="font-size: 12px; color: #7f8c8d; margin-top: 10px;">※生徒のモニタリングは下の枠に自動で表示されます。</p>
                 </div>
             </div>
 
-            <h2 class="section-title" style="margin-top: 30px;">📥 提出BOX (みんなの提出物)</h2>
-            <div id="submission-box" class="grid-container">
-                <p style="color:#7f8c8d;">まだ提出されていません。</p>
+            <h2 class="section-title" style="margin-top: 30px;">👀 モニタリング (みんなの作業状況)</h2>
+            <div id="monitor-box" class="monitor-grid">
+                <p style="color:#7f8c8d;">生徒がログインすると、自動的にここに画面が並びます。</p>
             </div>
-            
-            <h2 class="section-title" style="margin-top: 30px;">👀 モニタリング (生徒の画面一覧)</h2>
-            <div id="monitor-box" class="grid-container">
-                <p style="color:#7f8c8d;">上の「みんなの画面を見る」を押してください。</p>
+
+            <h2 class="section-title" style="margin-top: 30px;">📥 提出BOX</h2>
+            <div id="submission-box" class="submission-grid">
+                <p style="color:#7f8c8d;">まだ提出されていません。</p>
             </div>
         </div>
 
@@ -183,7 +213,6 @@
         const auth = firebase.auth();
         
         let isEraser = false;
-        let loginTime = Date.now();
 
         // --- ログイン処理 ---
         function login() {
@@ -205,6 +234,8 @@
                     document.getElementById('student-panel').style.display = 'block';
                     initStudentListeners();
                     setupCanvas();
+                    // 💡 生徒がログインしたら「無音・自動のモニタリング」を開始
+                    startSilentMonitoring();
                 }
             }
         });
@@ -212,24 +243,14 @@
         // ==========================================
         // 👨‍🏫 先生の機能
         // ==========================================
-        
         function sendTask() {
             const task = document.getElementById('task-input').value;
             if(!task) { alert("課題を入力してください"); return; }
             db.ref('live_control/current_task').set(task)
-              .then(() => alert("✅ 課題を全員に送信しました！"))
-              .catch(e => alert("❌ 送信エラー: " + e.message));
+              .then(() => alert("✅ 課題を全員に送信しました！"));
         }
 
-        function toggleLock(isLocked) {
-            db.ref('live_control/lock_screen').set(isLocked);
-        }
-
-        function requestStudentScreens() {
-            db.ref('live_control/request_screen').set(Date.now());
-            // 💡 先生側にポップアップを出したことを通知
-            alert("✅ 生徒の画面に「共有許可」のポップアップを出しました！");
-        }
+        function toggleLock(isLocked) { db.ref('live_control/lock_screen').set(isLocked); }
 
         let teacherStreamInterval = null;
         async function startTeacherBroadcast() {
@@ -248,7 +269,6 @@
                 }, 1000);
 
                 stream.getVideoTracks()[0].onended = () => stopTeacherBroadcast();
-                alert("強制共有を開始しました！");
             } catch(e) { alert("共有がキャンセルされました"); }
         }
 
@@ -258,58 +278,61 @@
         }
 
         function initTeacherListeners() {
+            // 提出BOXの受信
             db.ref('submissions').on('value', (snap) => {
                 const box = document.getElementById('submission-box');
                 box.innerHTML = ''; let hasData = false;
                 snap.forEach(child => {
                     hasData = true; const data = child.val();
-                    box.innerHTML += `<div class="card"><img src="${data.image}"><p class="card-name">${data.name}</p></div>`;
+                    box.innerHTML += `
+                        <div class="monitor-card" style="border-color:#2ecc71;">
+                            <img src="${data.image}">
+                            <p class="monitor-name" style="background:#e8f8f5; color:#16a085;">✅ ${data.name}</p>
+                        </div>`;
                 });
                 if(!hasData) box.innerHTML = '<p style="color:#7f8c8d;">まだ提出されていません。</p>';
             });
 
+            // モニタリング（自動受信）
             db.ref('monitor_screens').on('value', (snap) => {
                 const monitor = document.getElementById('monitor-box');
                 monitor.innerHTML = ''; let hasData = false;
                 snap.forEach(child => {
                     const data = child.val();
-                    if(Date.now() - data.timestamp < 30000) {
+                    // 1分以上通信がない生徒は非表示にする
+                    if(Date.now() - data.timestamp < 60000) {
                         hasData = true;
-                        // 💡 生徒がよそ見をしている場合の表示切り替え
                         if (data.isAway) {
+                            // よそ見中（別のタブを見ている等）
                             monitor.innerHTML += `
-                                <div class="card" style="border-color:#e74c3c;">
-                                    <div style="height:150px; background:#fff3e0; display:flex; align-items:center; justify-content:center; text-align:center; padding:10px; color:#d35400; font-weight:bold;">
-                                        ⚠️ タブを最小化しているか、<br>他のタブを見ています
-                                    </div>
-                                    <p class="card-name" style="color:#e74c3c; background:#fadbd8;">${data.name}</p>
+                                <div class="monitor-card" style="border-color:#e74c3c;">
+                                    <div class="monitor-away">⚠️ 別の画面を<br>見ています</div>
+                                    <p class="monitor-name" style="background:#fadbd8; color:#c0392b;">${data.name}</p>
                                 </div>`;
                         } else {
+                            // 通常の作業中
                             monitor.innerHTML += `
-                                <div class="card" style="border-color:#3498db;">
+                                <div class="monitor-card">
                                     <img src="${data.image}">
-                                    <p class="card-name" style="color:#3498db; background:#e8f4f8;">${data.name}</p>
+                                    <p class="monitor-name">${data.name}</p>
                                 </div>`;
                         }
                     }
                 });
-                if(!hasData) monitor.innerHTML = '<p style="color:#7f8c8d;">現在共有している生徒はいません。</p>';
+                if(!hasData) monitor.innerHTML = '<p style="color:#7f8c8d;">現在作業中の生徒はいません。</p>';
             });
         }
 
         // ==========================================
-        // 👦👧 生徒の機能
+        // 👦👧 生徒の機能 (完全自動モニタリング)
         // ==========================================
-        
         function initStudentListeners() {
             db.ref('live_control/current_task').on('value', (snap) => {
                 if(snap.val()) document.getElementById('current-task-display').innerText = snap.val();
             });
-
             db.ref('live_control/lock_screen').on('value', (snap) => {
                 document.getElementById('lock-overlay').style.display = snap.val() ? 'flex' : 'none';
             });
-
             db.ref('live_control/teacher_screen_active').on('value', (snap) => {
                 document.getElementById('force-share-overlay').style.display = snap.val() ? 'flex' : 'none';
             });
@@ -317,14 +340,7 @@
                 if(snap.val()) document.getElementById('teacher-broadcast-img').src = snap.val();
             });
 
-            db.ref('live_control/request_screen').on('value', (snap) => {
-                const reqTime = snap.val();
-                if(reqTime && reqTime > loginTime) {
-                    document.getElementById('screen-share-prompt-overlay').style.display = 'flex';
-                }
-            });
-
-            // 💡 生徒のよそ見（タブの切り替えや最小化）を即座に検知する処理
+            // よそ見検知
             document.addEventListener("visibilitychange", () => {
                 const user = auth.currentUser;
                 if (user) {
@@ -336,51 +352,32 @@
             });
         }
 
-        let studentStreamInterval = null;
-        async function startAutoStreaming() {
-            document.getElementById('screen-share-prompt-overlay').style.display = 'none';
-            try {
-                // 💡 preferCurrentTab: true を使って「今のタブ」を最初から選ばせる
-                const stream = await navigator.mediaDevices.getDisplayMedia({
-                    video: { displaySurface: "browser" },
-                    preferCurrentTab: true 
-                });
-                const video = document.createElement('video'); video.srcObject = stream; video.play();
-                const canvas = document.createElement('canvas'); const ctx = canvas.getContext('2d');
-                
-                alert("先生に画面の共有を開始しました！");
-
-                if(studentStreamInterval) clearInterval(studentStreamInterval);
-                // 💡 3秒に1回、書き終わった内容（画面）が送られる
-                studentStreamInterval = setInterval(() => {
-                    if (stream.active && video.videoWidth > 0) {
-                        canvas.width = 400; canvas.height = (400 / video.videoWidth) * video.videoHeight;
-                        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-                        db.ref('monitor_screens/' + auth.currentUser.uid).update({
-                            name: auth.currentUser.displayName, 
-                            image: canvas.toDataURL('image/jpeg', 0.3),
-                            isAway: document.hidden, // よそ見フラグも一緒に送る
-                            timestamp: Date.now()
-                        });
-                    } else { clearInterval(studentStreamInterval); }
-                }, 3000);
-
-                stream.getVideoTracks()[0].onended = () => clearInterval(studentStreamInterval);
-            } catch(e) { 
-                alert("共有がキャンセルされました。先生が画面を確認できません。"); 
-            }
+        // 💡 画面共有ポップアップを出さずに、キャンバスの中身だけを静かに送信し続ける機能
+        function startSilentMonitoring() {
+            setInterval(() => {
+                const user = auth.currentUser;
+                const canvas = document.getElementById('student-canvas');
+                if (user && canvas && !document.hidden) {
+                    // キャンバスの絵を画像データに変換 (通信量を抑えるため画質0.3)
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.3);
+                    
+                    db.ref('monitor_screens/' + user.uid).update({
+                        name: user.displayName, 
+                        image: dataUrl,
+                        isAway: false,
+                        timestamp: Date.now()
+                    });
+                }
+            }, 3000); // 3秒に1回、静かに送信
         }
 
         // ==========================================
         // 🎨 キャンバス ＆ スタンプ ＆ 提出
         // ==========================================
         function setupCanvas() {
-            const canvas = document.getElementById('student-canvas');
-            const ctx = canvas.getContext('2d');
+            const canvas = document.getElementById('student-canvas'); const ctx = canvas.getContext('2d');
             let drawing = false;
-
             ctx.fillStyle = "white"; ctx.fillRect(0, 0, canvas.width, canvas.height);
-
             const startDraw = (e) => { drawing = true; draw(e); e.preventDefault(); };
             const endDraw = () => { drawing = false; ctx.beginPath(); };
             
@@ -392,10 +389,8 @@
                 const rect = canvas.getBoundingClientRect();
                 const scaleX = canvas.width / rect.width; const scaleY = canvas.height / rect.height;
                 const x = (e.clientX - rect.left) * scaleX; const y = (e.clientY - rect.top) * scaleY;
-
                 ctx.lineWidth = document.getElementById('pen-size').value; ctx.lineCap = 'round';
                 ctx.strokeStyle = isEraser ? "white" : document.getElementById('pen-color').value;
-
                 ctx.lineTo(x, y); ctx.stroke();
                 ctx.beginPath(); ctx.moveTo(x, y);
             }
@@ -420,19 +415,15 @@
             let isDragging = false, startX, startY, initialX, initialY;
             const startDrag = (e) => {
                 isDragging = true;
-                startX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
-                startY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
+                startX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX; startY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
                 initialX = stampEl.offsetLeft; initialY = stampEl.offsetTop; e.preventDefault();
             };
             const doDrag = (e) => {
                 if (!isDragging) return;
-                const clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
-                const clientY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
-                stampEl.style.left = (initialX + (clientX - startX)) + 'px';
-                stampEl.style.top = (initialY + (clientY - startY)) + 'px';
+                const clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX; const clientY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
+                stampEl.style.left = (initialX + (clientX - startX)) + 'px'; stampEl.style.top = (initialY + (clientY - startY)) + 'px';
             };
             const endDrag = () => { isDragging = false; };
-
             stampEl.addEventListener('mousedown', startDrag); document.addEventListener('mousemove', doDrag); document.addEventListener('mouseup', endDrag);
             stampEl.addEventListener('touchstart', startDrag, {passive: false}); document.addEventListener('touchmove', doDrag, {passive: false}); document.addEventListener('touchend', endDrag);
             stampEl.addEventListener('dblclick', () => stampEl.remove());
@@ -441,12 +432,10 @@
 
         function submitCard() {
             const canvas = document.getElementById('student-canvas'); const ctx = canvas.getContext('2d');
-            
             document.querySelectorAll('.draggable-stamp').forEach(stamp => {
                 const rect = stamp.getBoundingClientRect(); const canvasRect = canvas.getBoundingClientRect();
                 const scaleX = canvas.width / canvasRect.width; const scaleY = canvas.height / canvasRect.height;
-                const x = (rect.left - canvasRect.left + rect.width / 2) * scaleX;
-                const y = (rect.top - canvasRect.top + rect.height / 2) * scaleY;
+                const x = (rect.left - canvasRect.left + rect.width / 2) * scaleX; const y = (rect.top - canvasRect.top + rect.height / 2) * scaleY;
                 ctx.font = "50px 'Zen Maru Gothic'"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
                 ctx.fillText(stamp.innerText, x, y); stamp.remove(); 
             });
@@ -467,7 +456,7 @@
                     overlay.appendChild(star);
                 }
                 setTimeout(() => { overlay.style.display = 'none'; }, 2000);
-            }).catch(e => alert("❌ 提出エラー: " + e.message));
+            });
         }
     </script>
 </body>
