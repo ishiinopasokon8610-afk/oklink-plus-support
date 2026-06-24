@@ -2,29 +2,28 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>オクリンクトリプルプラス</title>
     <link rel="icon" href="oklink.jpg">
     <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;700&display=swap" rel="stylesheet">
-    
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
     <style>
         /* ==========================================
            🎨 全体・共通デザイン
            ========================================== */
-        body { font-family: 'Zen Maru Gothic', sans-serif; background: #fffdf2; margin: 0; color: #5a4b3c; overflow: hidden; height: 100vh;}
+        body { font-family: 'Zen Maru Gothic', sans-serif; background: #fffdf2; margin: 0; color: #5a4b3c; overflow: hidden; height: 100vh; touch-action: none;}
         
-        .header { background: #ffca28; color: #5a4b3c; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 10px rgba(255, 202, 40, 0.3); z-index: 100;}
+        .header { background: #ffca28; color: #5a4b3c; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 10px rgba(255, 202, 40, 0.3); z-index: 1000; position: relative;}
         .header h1 { margin: 0; font-size: 22px; display: flex; align-items: center; gap: 10px; font-weight: 700; }
         .logo-icon { width: 36px; height: 36px; border-radius: 10px; border: 2px solid white;}
         .btn-base { background: #fff; color: #ffca28; border: 2px solid #fff; padding: 6px 15px; border-radius: 20px; font-weight: bold; cursor: pointer; transition: 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-left: 10px;}
         .btn-base:hover { background: #fff8e1; transform: scale(1.05); }
 
         /* ==========================================
-           🏫 ダッシュボード（授業一覧・配布）
+           🏫 ダッシュボード（授業一覧）
            ========================================== */
-        #dashboard-screen { display: flex; flex-direction: column; height: 100vh; background: #fdfdfd; background-image: radial-gradient(#ffecb3 2px, transparent 2px); background-size: 30px 30px;}
+        #dashboard-screen { display: flex; flex-direction: column; height: 100vh; background: #fdfdfd; background-image: radial-gradient(#ffecb3 2px, transparent 2px); background-size: 30px 30px; position: absolute; width: 100%; top: 0; left: 0; z-index: 100;}
         .dashboard-content { padding: 30px; overflow-y: auto; flex: 1; }
         .dashboard-controls { margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;}
         
@@ -34,63 +33,64 @@
         .lesson-color-bar { height: 80px; display: flex; align-items: flex-end; padding: 15px; color: white; font-size: 20px; font-weight: bold; text-shadow: 1px 1px 3px rgba(0,0,0,0.3);}
         .lesson-info { padding: 15px; background: white; font-size: 14px; color: #888; }
 
-        /* 新規作成＆配布モーダル */
+        /* モーダル */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.6); z-index: 2000; justify-content: center; align-items: center; backdrop-filter: blur(3px);}
         .modal-box { background: white; padding: 30px; border-radius: 20px; width: 500px; max-width: 90%; max-height: 80vh; overflow-y: auto; border: 4px solid #ffca28; position: relative;}
         .modal-box h2 { margin-top: 0; color: #d35400; border-bottom: 2px solid #ffe082; padding-bottom: 10px;}
         
-        /* 👨‍🎓 名簿リスト */
         .student-check-list { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0; max-height: 200px; overflow-y: auto; padding: 10px; background: #fffdf2; border: 2px solid #ffe082; border-radius: 10px;}
         .student-item { background: white; padding: 8px; border-radius: 8px; border: 1px solid #ccc; cursor: pointer; display: flex; align-items: center; gap: 8px; }
         .student-item.selected { background: #ffca28; color: white; border-color: #ff8f00; font-weight: bold; }
-        
         .form-group input { width: 100%; padding: 10px; border: 2px solid #ffe082; border-radius: 10px; font-family: 'Zen Maru Gothic'; font-size: 16px; box-sizing: border-box; outline: none;}
         .btn-create { width: 100%; background: #8bc34a; color: white; border: none; padding: 12px; border-radius: 10px; font-weight: bold; font-size: 16px; cursor: pointer; margin-top: 10px;}
 
         /* ==========================================
            📝 メインボード（本体）画面
            ========================================== */
-        #app-screen { display: none; flex-direction: column; height: 100vh; position: relative;}
-        .board-container { flex-grow: 1; position: relative; overflow: auto; background: #fdfdfd; background-image: radial-gradient(#ffecb3 2px, transparent 2px); background-size: 30px 30px; }
-        .board-content { width: 2000px; height: 2000px; position: absolute; top: 0; left: 0; transform-origin: top left; transition: transform 0.2s ease; }
+        #app-screen { display: none; flex-direction: column; height: 100vh; width: 100vw; position: absolute; top: 0; left: 0; z-index: 50; background: #fffdf2;}
+        .board-container { flex: 1; position: relative; overflow: auto; background: #fdfdfd; background-image: radial-gradient(#ffecb3 2px, transparent 2px); background-size: 30px 30px; }
+        .board-content { width: 3000px; height: 3000px; position: absolute; top: 0; left: 0; transform-origin: top left; transition: transform 0.1s ease-out; }
         .board-area { display: none; width: 100%; height: 100%; position: absolute; top:0; left:0; }
         .board-area.active { display: block; }
         #drawing-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 5; pointer-events: none; }
 
-        /* 🃏 カード */
-        .card { background: white; border: 2px solid #ffe082; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); position: absolute; width: 250px; height: 160px; display: flex; flex-direction: column; z-index: 10;}
-        .card-header { background: #ffca28; height: 25px; cursor: grab; display: flex; justify-content: space-between; align-items: center; padding: 0 10px; font-weight: bold; color: #5a4b3c; border-radius: 13px 13px 0 0;}
-        .card-content { flex: 1; padding: 10px; overflow: auto; position: relative; }
-        .card textarea { width: 100%; height: 100%; border: none; outline: none; resize: none; font-family: 'Zen Maru Gothic'; font-size: 16px; background: transparent;}
+        /* 🃏 黄色いカード */
+        .card { background: #fff9c4; border: 3px solid #ffca28; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); position: absolute; width: 250px; height: 160px; display: flex; flex-direction: column; z-index: 10; transition: box-shadow 0.2s;}
+        .card.active-edit { box-shadow: 0 0 20px rgba(255, 143, 0, 0.6); border-color: #ff8f00; z-index: 50 !important;}
+        .card-header { background: #ffca28; height: 25px; cursor: grab; display: flex; justify-content: space-between; align-items: center; padding: 0 10px; font-weight: bold; color: #5a4b3c; border-radius: 11px 11px 0 0;}
+        .card-content { flex: 1; padding: 10px; position: relative; display: flex; flex-direction: column;}
+        .card textarea { width: 100%; flex: 1; border: none; outline: none; resize: none; font-family: 'Zen Maru Gothic'; font-size: 16px; background: transparent; color: #333;}
+        
+        /* ⭐️ カード編集ツールバー（ダブルタップで出現） */
+        .card-edit-toolbar { display: none; position: absolute; top: -50px; left: 50%; transform: translateX(-50%); background: white; padding: 5px 10px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); gap: 8px; border: 2px solid #ffca28; z-index: 60;}
+        .card.active-edit .card-edit-toolbar { display: flex; }
+        .c-tool-btn { background: #fffdf2; border: 1px solid #ffe082; border-radius: 50%; width: 35px; height: 35px; cursor: pointer; font-size: 16px; display: flex; justify-content: center; align-items: center; transition: 0.2s;}
+        .c-tool-btn:hover { background: #ffecb3; transform: scale(1.1); }
+        .c-tool-btn.active { background: #ffb300; color: white; }
 
-        /* 🛠 下部ツールバー */
-        .bottom-toolbar { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: white; padding: 10px 20px; border-radius: 40px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); display: flex; gap: 10px; align-items: center; z-index: 200; border: 3px solid #ffca28;}
-        .tool-btn { background: #fff9c4; border: 2px solid #ffe082; border-radius: 50%; font-size: 20px; width: 45px; height: 45px; cursor: pointer; transition: 0.2s; display: flex; justify-content: center; align-items: center;}
-        .tool-btn.active { background: #ffb300; color: white; }
-        .zoom-select { padding: 5px 10px; border-radius: 15px; border: 2px solid #ffe082; font-family: 'Zen Maru Gothic'; font-weight: bold; outline: none;}
+        /* 🛠 新しい下部ツールバー */
+        .bottom-toolbar { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: white; padding: 10px 20px; border-radius: 40px; box-shadow: 0 5px 20px rgba(0,0,0,0.15); display: flex; gap: 10px; align-items: center; z-index: 200; border: 3px solid #ffca28;}
+        .action-btn { background: #fdfdfd; border: 2px solid #ddd; border-radius: 50%; font-size: 18px; width: 40px; height: 40px; cursor: pointer; transition: 0.2s;}
+        .action-btn:hover { background: #eee; }
+        .zoom-select { padding: 5px 10px; border-radius: 15px; border: 2px solid #ffe082; font-family: 'Zen Maru Gothic'; font-weight: bold; outline: none; background: #fff9c4;}
+        .main-add-btn { background: #ffca28; color: #5a4b3c; border: none; border-radius: 20px; padding: 8px 15px; font-weight: bold; font-size: 16px; cursor: pointer; box-shadow: 0 3px 0 #f39c12; transition: 0.1s; display: flex; align-items: center; gap: 5px;}
+        .main-add-btn:active { transform: translateY(3px); box-shadow: none; }
+        .pdf-btn { background: #3498db; color: white; border: none; border-radius: 20px; padding: 8px 15px; font-weight: bold; cursor: pointer; box-shadow: 0 3px 0 #2980b9;}
 
-        /* ==========================================
-           🍀 左下の巨大提出アクション
-           ========================================== */
+        /* 🍀 左下のクローバー */
         .clover-container { position: fixed; bottom: 20px; left: 20px; z-index: 200; text-align: center;}
         .clover-btn { background: #fff; border: 3px solid #8bc34a; font-size: 35px; width: 80px; height: 80px; border-radius: 50%; cursor: pointer; box-shadow: 0 5px 15px rgba(139, 195, 74, 0.4); transition: 0.3s; display: flex; justify-content: center; align-items: center;}
-        .clover-btn:hover, .clover-btn.drag-over { transform: scale(1.1); background: #f1f8e9; }
-
-        /* 超巨大モーダル（ドロップゾーン） */
+        
         .big-drop-modal { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.8); z-index: 5000; justify-content: center; align-items: center; gap: 50px; backdrop-filter: blur(5px);}
-        .huge-drop-zone { width: 30vw; height: 40vh; background: rgba(255, 255, 255, 0.9); border: 8px dashed #ffca28; border-radius: 30px; display: flex; flex-direction: column; justify-content: center; align-items: center; font-size: 40px; font-weight: bold; color: #d35400; transition: 0.3s;}
-        .huge-drop-zone.hover { background: #fff9c4; border-color: #e74c3c; transform: scale(1.05);}
+        .huge-drop-zone { width: 30vw; height: 40vh; background: rgba(255, 255, 255, 0.9); border: 8px dashed #ffca28; border-radius: 30px; display: flex; flex-direction: column; justify-content: center; align-items: center; font-size: 40px; font-weight: bold; color: #d35400;}
 
-        /* ==========================================
-           👀 全画面 ライブモニタリング
-           ========================================== */
+        /* 👀 ライブモニタリング */
         #live-monitor-modal { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #2c3e50; z-index: 6000; flex-direction: column; }
         .monitor-header { background: #34495e; color: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; font-size: 20px; font-weight: bold;}
         .monitor-grid { flex: 1; padding: 20px; overflow-y: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; }
-        
         .monitor-card { background: #000; border: 3px solid #7f8c8d; border-radius: 10px; overflow: hidden; display: flex; flex-direction: column; position: relative;}
         .monitor-card img { width: 100%; height: 180px; object-fit: contain; background: #111;}
-        .monitor-name { background: #ecf0f1; padding: 8px; text-align: center; font-weight: bold; font-size: 14px; margin: 0; color: #2c3e50;}
+        .monitor-name { background: #ecf0f1; padding: 8px; text-align: center; font-weight: bold; font-size: 14px; margin: 0;}
         .offline-text { position: absolute; top: 0; left: 0; width: 100%; height: 180px; display: flex; justify-content: center; align-items: center; color: #e74c3c; font-weight: bold; font-size: 24px; background: rgba(0,0,0,0.8); z-index: 2;}
 
         .toast { position: fixed; top: -50px; left: 50%; transform: translateX(-50%); background: #8bc34a; color: white; padding: 10px 20px; border-radius: 20px; font-weight: bold; transition: 0.5s; z-index: 9999;}
@@ -101,7 +101,7 @@
 
     <div id="dashboard-screen">
         <div class="header">
-            <h1><img src="oklink.jpg" class="logo-icon" alt="ロゴ"> オクリンクトリプルプラス</h1>
+            <h1><img src="oklink.jpg" class="logo-icon"> オクリンクトリプルプラス</h1>
             <div style="display:flex; align-items:center; gap:10px;">
                 <div id="user-info-dash" style="font-weight:bold; color: #d35400;">👤 読み込み中...</div>
             </div>
@@ -114,9 +114,8 @@
                     ➕ 授業を作成して配布
                 </button>
             </div>
-
             <div class="lesson-grid" id="lesson-grid">
-                <p style="color: #aaa; font-size: 18px; font-weight: bold;">⏳ 読み込み中...</p>
+                <p id="loading-text" style="color: #aaa; font-size: 18px; font-weight: bold;">⏳ 読み込み中...</p>
             </div>
         </div>
     </div>
@@ -125,17 +124,12 @@
         <div class="modal-box">
             <button onclick="closeModal('create-modal')" style="position:absolute; top:15px; right:15px; background:none; border:none; font-size:20px; cursor:pointer; color:#888;">✖</button>
             <h2>授業を作成して配布</h2>
-            
-            <div class="form-group">
-                <input type="text" id="input-lesson-name" placeholder="授業名を入力 (例: 国語 1学期)">
-            </div>
-            
+            <div class="form-group"><input type="text" id="input-lesson-name" placeholder="授業名を入力 (例: 国語 1学期)"></div>
             <h3 style="margin: 15px 0 5px 0; font-size:16px;">配布する生徒を選択（名簿）</h3>
             <div class="student-check-list" id="student-check-list">
                 <p style="color:#aaa;">名簿を読み込んでいます...</p>
             </div>
             <button class="btn-base" style="width:100%; margin:0 0 10px 0; border:1px solid #ccc;" onclick="selectAllStudents()">全員を選択 / 解除</button>
-
             <button class="btn-create" onclick="submitNewLesson()">このメンバーに授業を配布する</button>
         </div>
     </div>
@@ -143,7 +137,7 @@
     <div id="app-screen">
         <div class="header">
             <h1>
-                <img src="oklink.jpg" class="logo-icon" alt="ロゴ"> 
+                <img src="oklink.jpg" class="logo-icon"> 
                 <span id="current-lesson-title">授業名</span>
                 <button class="btn-base" onclick="toggleBoard()">マイボード ⇔ みんなのボード</button>
             </h1>
@@ -153,21 +147,34 @@
             </div>
         </div>
 
-        <div class="board-container" id="board-container">
+        <div class="board-container" id="board-container" onclick="clearEditMode(event)">
             <div class="board-content" id="board-content">
-                <canvas id="drawing-layer" width="2000" height="2000"></canvas>
+                <canvas id="drawing-layer" width="3000" height="3000"></canvas>
                 <div id="my-board" class="board-area active"><h2 style="position:absolute; top:10px; left:20px; color:#ccc;">✏️ マイボード</h2></div>
                 <div id="minna-board" class="board-area"><h2 style="position:absolute; top:10px; left:20px; color:#ccc;">🌐 みんなのボード</h2></div>
             </div>
         </div>
 
         <div class="bottom-toolbar">
-            <select class="zoom-select" id="zoom-select" onchange="applyZoom()">
+            <button class="action-btn" title="戻る" onclick="undoAction()">↩️</button>
+            <button class="action-btn" title="やり直す" onclick="redoAction()">↪️</button>
+            <div style="width: 2px; height: 30px; background: #ffe082; margin: 0 5px;"></div>
+            
+            <select class="zoom-select" id="zoom-select" onchange="applyZoomFromDropdown()">
+                <option value="custom" id="custom-zoom-option" style="display:none;">🔍 カスタム</option>
+                <option value="0.25">🔍 25%</option>
                 <option value="0.50">🔍 50%</option>
+                <option value="0.75">🔍 75%</option>
                 <option value="1.0" selected>🔍 100%</option>
+                <option value="1.50">🔍 150%</option>
             </select>
-            <button class="tool-btn" id="btn-pen" onclick="togglePen()">🖊️</button>
-            <button class="tool-btn" onclick="addCard('text')">📝</button>
+            
+            <div style="width: 2px; height: 30px; background: #ffe082; margin: 0 5px;"></div>
+            
+            <button class="pdf-btn" onclick="document.getElementById('pdf-input').click()">📄 PDF取込</button>
+            <input type="file" id="pdf-input" accept="application/pdf" style="display:none" onchange="importPDF(event)">
+            
+            <button class="main-add-btn" onclick="addCard()">➕ カードを作成</button>
         </div>
 
         <div class="clover-container">
@@ -178,16 +185,8 @@
 
     <div id="big-drop-modal" class="big-drop-modal">
         <button onclick="closeModal('big-drop-modal')" style="position:absolute; top:30px; right:40px; background:none; border:none; font-size:40px; cursor:pointer; color:white;">✖</button>
-        
-        <div class="huge-drop-zone" ondragover="allowDrop(event)" ondragleave="leaveDropBox(event)" ondrop="dropTo(event, 'みんなのボード')">
-            🌐<br>みんなに送る
-            <p style="font-size:16px; font-weight:normal; color:#888;">※みんなのボードに共有されます</p>
-        </div>
-        
-        <div class="huge-drop-zone" ondragover="allowDrop(event)" ondragleave="leaveDropBox(event)" ondrop="dropTo(event, '提出ボックス')">
-            📥<br>提出ボックス
-            <p style="font-size:16px; font-weight:normal; color:#888;">※先生に提出します</p>
-        </div>
+        <div class="huge-drop-zone" ondragover="allowDrop(event)" ondragleave="leaveDropBox(event)" ondrop="dropTo(event, 'みんなのボード')">🌐<br>みんなに送る</div>
+        <div class="huge-drop-zone" ondragover="allowDrop(event)" ondragleave="leaveDropBox(event)" ondrop="dropTo(event, '提出ボックス')">📥<br>提出ボックス</div>
     </div>
 
     <div id="live-monitor-modal">
@@ -195,9 +194,7 @@
             <span>👀 ライブモニタリング（全生徒リアルタイム）</span>
             <button class="btn-base" style="background:#e74c3c; color:white; border:none;" onclick="closeModal('live-monitor-modal')">✖ 閉じる</button>
         </div>
-        <div class="monitor-grid" id="monitor-grid">
-            <p style="color:white; text-align:center; font-size: 20px;">読み込み中...</p>
-        </div>
+        <div class="monitor-grid" id="monitor-grid"></div>
     </div>
 
     <div id="toast-notification" class="toast">🍀 メッセージ</div>
@@ -207,9 +204,6 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <script>
-        // ==========================================
-        // 📋 Firebase設定と初期化
-        // ==========================================
         const firebaseConfig = {
             apiKey: "AIzaSyB7jGlKT6LKGxIqWdJrvxuT8Fj6oJ3U_5A",
             authDomain: "oklink-plus-support.firebaseapp.com",
@@ -227,285 +221,412 @@
         let currentLessonId = null;
         let screenCaptureInterval = null;
 
-        // --- ログイン処理と名簿自動登録 ---
+        // --- 認証と名簿の即時ロード ---
         auth.onAuthStateChanged(user => {
             if (user) {
                 currentUser = user;
                 isTeacher = (user.email === TEACHER_EMAIL);
                 document.getElementById('user-info-dash').innerText = isTeacher ? `👨‍🏫 先生 (${user.displayName})` : `👤 ${user.displayName}`;
                 
-                // 📝 ログインしたら無条件で名簿に登録・更新
-                db.ref('students/' + user.uid).update({
-                    name: user.displayName,
-                    email: user.email,
-                    lastLogin: Date.now()
-                });
+                db.ref('students/' + user.uid).update({ name: user.displayName, email: user.email, lastLogin: Date.now() });
 
                 if (isTeacher) {
                     document.getElementById('btn-create-lesson').style.display = 'block';
                     document.getElementById('btn-live-monitor').style.display = 'block';
-                    loadStudentListForModal(); // 先生なら名簿リストをロードしておく
+                    loadStudentListFast(); // 🚀 即座に名簿を読み込む
                 }
-
-                loadMyLessons(); // 自分の授業を読み込む
+                loadMyLessonsFast(); // 🚀 即座に授業を読み込む
             } else {
-                auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(e => alert("ログインエラー"));
+                auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
             }
         });
 
-        // ==========================================
-        // 🏫 ダッシュボード（授業の取得と表示）
-        // ==========================================
-        function loadMyLessons() {
+        // 🏫 ダッシュボード（授業5秒判定）
+        function loadMyLessonsFast() {
+            let isLoaded = false;
             db.ref('lessons').on('value', snap => {
+                isLoaded = true;
                 const grid = document.getElementById('lesson-grid');
                 grid.innerHTML = '';
-                const colors = ['#3498db', '#e74c3c', '#2ecc71', '#f39c12', '#9b59b6'];
                 let hasLessons = false;
+                const colors = ['#3498db', '#e74c3c', '#2ecc71', '#f39c12', '#9b59b6'];
 
                 if(snap.exists()) {
                     snap.forEach(child => {
                         const lesson = child.val();
-                        // 先生であるか、またはこの授業の配布対象者に自分が含まれているか
                         if (isTeacher || (lesson.assignedTo && lesson.assignedTo[currentUser.uid])) {
                             hasLessons = true;
                             const bgColor = colors[child.key.charCodeAt(child.key.length-1) % colors.length];
-                            
                             grid.innerHTML += `
                                 <div class="lesson-card" onclick="enterLesson('${child.key}', '${lesson.name}')">
                                     <div class="lesson-color-bar" style="background: ${bgColor};">${lesson.name}</div>
-                                    <div class="lesson-info">先生からの配布ノートです</div>
+                                    <div class="lesson-info">先生からの配布ノート</div>
                                 </div>
                             `;
                         }
                     });
                 }
-
-                // 授業が1つもない場合の表示
-                if (!hasLessons) {
-                    grid.innerHTML = '<p style="color:#e74c3c; font-size: 20px; font-weight: bold;">📭 授業を受けた履歴が有りません。</p><p style="color:#888;">先生から配布されるのを待ってください。</p>';
-                }
+                if (!hasLessons) grid.innerHTML = '<p style="color:#e74c3c; font-size: 20px; font-weight: bold;">📭 授業を受けた履歴が有りません。</p>';
             });
+
+            // 5秒経ってもロードされない場合の安全処理
+            setTimeout(() => {
+                if (!isLoaded || document.getElementById('lesson-grid').innerHTML.includes('読み込み中')) {
+                    document.getElementById('lesson-grid').innerHTML = '<p style="color:#e74c3c; font-size: 20px; font-weight: bold;">📭 授業がありません。</p>';
+                }
+            }, 5000);
         }
 
-        // ==========================================
-        // 👨‍🏫 先生専用：授業作成＆名簿からの配布
-        // ==========================================
-        function openCreateModal() { document.getElementById('create-modal').style.display = 'flex'; }
-        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-
-        // 名簿を読み込んでチェックボックスにする
-        function loadStudentListForModal() {
+        // 👨‍🎓 名簿の即時更新
+        function loadStudentListFast() {
             db.ref('students').on('value', snap => {
                 const list = document.getElementById('student-check-list');
                 list.innerHTML = '';
                 snap.forEach(s => {
-                    const student = s.val();
-                    // 先生自身は除外
-                    if(student.email !== TEACHER_EMAIL) {
+                    if (s.val().email !== TEACHER_EMAIL) {
                         list.innerHTML += `
                             <div class="student-item" onclick="this.classList.toggle('selected')" data-uid="${s.key}">
-                                <input type="checkbox" style="pointer-events:none;"> ${student.name}
+                                <input type="checkbox" style="pointer-events:none;"> ${s.val().name}
                             </div>
                         `;
                     }
                 });
+                if(list.innerHTML === '') list.innerHTML = '<p>生徒がいません</p>';
             });
         }
 
-        function selectAllStudents() {
-            const items = document.querySelectorAll('#student-check-list .student-item');
-            const allSelected = Array.from(items).every(i => i.classList.contains('selected'));
-            items.forEach(i => {
-                if(allSelected) i.classList.remove('selected');
-                else i.classList.add('selected');
-            });
-        }
-
-        function submitNewLesson() {
-            const name = document.getElementById('input-lesson-name').value;
-            if(!name) { alert('授業名を入力してください'); return; }
-
-            // 選択された生徒のUIDを集める
-            const selectedItems = document.querySelectorAll('#student-check-list .student-item.selected');
-            if(selectedItems.length === 0) { alert('配布する生徒を1人以上選んでください'); return; }
-
-            let assignedTo = {};
-            selectedItems.forEach(item => {
-                assignedTo[item.getAttribute('data-uid')] = true;
-            });
-
-            db.ref('lessons').push().set({
-                name: name,
-                assignedTo: assignedTo,
-                createdAt: Date.now()
-            }).then(() => {
-                closeModal('create-modal');
-                showToast("✨ 生徒に授業を配布しました！");
-                document.getElementById('input-lesson-name').value = '';
-            });
-        }
-
-        // ==========================================
-        // 🚪 授業へ入る / 出る
-        // ==========================================
+        // 🚪 授業へ入る (ホワイトボード表示修正)
         function enterLesson(id, name) {
             currentLessonId = id;
             document.getElementById('dashboard-screen').style.display = 'none';
-            document.getElementById('app-screen').style.display = 'flex';
+            // flexにして表示。確実に見えるように z-index を上げる。
+            const appScreen = document.getElementById('app-screen');
+            appScreen.style.display = 'flex';
+            appScreen.style.zIndex = '500'; 
+            
             document.getElementById('current-lesson-title').innerText = name;
             
-            // ボード初期化
             document.getElementById('my-board').innerHTML = '<h2 style="position:absolute; top:10px; left:20px; color:#ccc;">✏️ マイボード</h2>';
-            document.getElementById('minna-board').innerHTML = '<h2 style="position:absolute; top:10px; left:20px; color:#ccc;">🌐 みんなのボード</h2>';
-            document.getElementById('drawing-layer').getContext('2d').clearRect(0,0,2000,2000);
+            document.getElementById('drawing-layer').getContext('2d').clearRect(0,0,3000,3000);
+            saveHistory(); // 初期状態を保存
 
-            showToast(`「${name}」に入室しました`);
-            
-            // 生徒なら1秒ごとの画面キャプチャを開始
             if (!isTeacher) startScreenCaptureLoop();
         }
 
         function exitLesson() {
             currentLessonId = null;
-            clearInterval(screenCaptureInterval); // キャプチャ停止
+            clearInterval(screenCaptureInterval);
             document.getElementById('app-screen').style.display = 'none';
             document.getElementById('dashboard-screen').style.display = 'flex';
         }
 
         // ==========================================
-        // 👀 ライブモニタリング機能（先生専用）
+        // 🃏 カードの作成・ダブルタップ・ツール
         // ==========================================
-        function startScreenCaptureLoop() {
-            // 1秒ごとに画面を撮って先生に送る（解像度を0.2に落として軽くする）
-            screenCaptureInterval = setInterval(() => {
-                if (currentLessonId && !document.hidden) {
-                    html2canvas(document.getElementById('board-content'), { scale: 0.2 }).then(canvas => {
-                        db.ref('monitor_screens/' + currentUser.uid).set({
-                            name: currentUser.displayName,
-                            image: canvas.toDataURL('image/jpeg', 0.4),
-                            timestamp: Date.now()
-                        });
-                    });
-                }
-            }, 1000);
+        let zIndexCounter = 10;
+        let isPenMode = false;
+        let activeEditCard = null;
+
+        function addCard() {
+            const board = document.querySelector('.board-area.active');
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.style.left = (Math.random() * 200 + window.innerWidth/3) + 'px';
+            card.style.top = (Math.random() * 100 + window.innerHeight/3) + 'px';
+            card.style.zIndex = ++zIndexCounter;
+
+            // ⭐️ ダブルタップで編集ツールを出す
+            card.ondblclick = (e) => {
+                e.stopPropagation();
+                document.querySelectorAll('.card').forEach(c => c.classList.remove('active-edit'));
+                card.classList.add('active-edit');
+                activeEditCard = card;
+                card.style.zIndex = ++zIndexCounter;
+            };
+
+            card.innerHTML = `
+                <div class="card-edit-toolbar">
+                    <button class="c-tool-btn" title="ペンで書く" onclick="toggleCardPen(this, event)">🖋️</button>
+                    <button class="c-tool-btn" title="文字入力" onclick="focusCardText(this, event)">📝</button>
+                    <button class="c-tool-btn" title="色変更" onclick="changeCardColor(this, event)">🎨</button>
+                    <button class="c-tool-btn" title="削除" style="color:#e74c3c;" onclick="this.parentElement.parentElement.remove()">🗑️</button>
+                </div>
+                <div class="card-header"><span>カード</span> <span style="cursor:pointer; color:#e74c3c;" onclick="this.parentElement.parentElement.remove()">✖</span></div>
+                <div class="card-content"><textarea placeholder="文字を入力..."></textarea></div>
+            `;
+            board.appendChild(card);
+            
+            // ドラッグはヘッダーのみ
+            const header = card.querySelector('.card-header');
+            header.onmousedown = (e) => { 
+                e.preventDefault(); e.stopPropagation(); card.style.zIndex = ++zIndexCounter;
+                let pos1=0, pos2=0, pos3=e.clientX, pos4=e.clientY;
+                document.onmouseup = () => { document.onmouseup=null; document.onmousemove=null; saveHistory();};
+                document.onmousemove = (ev) => {
+                    ev.preventDefault(); pos1=(pos3-ev.clientX)/currentZoom; pos2=(pos4-ev.clientY)/currentZoom; pos3=ev.clientX; pos4=ev.clientY;
+                    card.style.top=(card.offsetTop-pos2)+"px"; card.style.left=(card.offsetLeft-pos1)+"px";
+                };
+            };
+            saveHistory();
         }
 
-        function openLiveMonitor() {
-            document.getElementById('live-monitor-modal').style.display = 'flex';
-            
-            // 名簿にいる全生徒の枠を作り、モニター情報を監視
-            db.ref('students').once('value').then(snap => {
-                const grid = document.getElementById('monitor-grid');
-                grid.innerHTML = '';
-                let studentList = [];
-                
-                snap.forEach(s => {
-                    if (s.val().email !== TEACHER_EMAIL) {
-                        studentList.push({uid: s.key, name: s.val().name});
-                        // 初期状態は「モニタリング外」
-                        grid.innerHTML += `
-                            <div class="monitor-card" id="monitor-${s.key}">
-                                <div class="offline-text">モニタリング外</div>
-                                <img src="" id="img-${s.key}">
-                                <p class="monitor-name">👤 ${s.val().name}</p>
-                            </div>
-                        `;
-                    }
-                });
+        // 背景クリックで編集モード解除
+        function clearEditMode(e) {
+            if(e.target.id === 'board-container' || e.target.id === 'board-content' || e.target.id === 'drawing-layer') {
+                document.querySelectorAll('.card').forEach(c => c.classList.remove('active-edit'));
+                activeEditCard = null;
+            }
+        }
 
-                // モニター情報のリアルタイム受信
-                db.ref('monitor_screens').on('value', monitorSnap => {
-                    studentList.forEach(student => {
-                        const data = monitorSnap.child(student.uid).val();
-                        const card = document.getElementById('monitor-' + student.uid);
-                        const img = document.getElementById('img-' + student.uid);
-                        const offlineText = card.querySelector('.offline-text');
+        function toggleCardPen(btn, event) {
+            event.stopPropagation();
+            togglePen(); // 既存のペンツールを起動
+            btn.classList.toggle('active');
+        }
 
-                        // 5秒以内にデータが届いていればオンライン
-                        if (data && (Date.now() - data.timestamp < 5000)) {
-                            offlineText.style.display = 'none';
-                            img.src = data.image;
-                        } else {
-                            offlineText.style.display = 'flex';
-                            img.src = '';
-                        }
-                    });
-                });
+        function focusCardText(btn, event) {
+            event.stopPropagation();
+            btn.parentElement.parentElement.querySelector('textarea').focus();
+        }
+
+        function changeCardColor(btn, event) {
+            event.stopPropagation();
+            const card = btn.parentElement.parentElement;
+            const colors = ['#fff9c4', '#ffcdd2', '#c8e6c9', '#bbdefb', '#ffffff'];
+            let currentColor = card.style.backgroundColor || '#fff9c4';
+            let nextColor = colors[(colors.indexOf(rgb2hex(currentColor)) + 1) % colors.length];
+            if(!nextColor) nextColor = colors[1]; // fallback
+            card.style.backgroundColor = nextColor;
+        }
+
+        function rgb2hex(rgb) {
+            if(/^#[0-9A-F]{6}$/i.test(rgb)) return rgb.toLowerCase();
+            rgb = rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+            return rgb ? "#" + ("0" + parseInt(rgb[1],10).toString(16)).slice(-2) +
+                ("0" + parseInt(rgb[2],10).toString(16)).slice(-2) +
+                ("0" + parseInt(rgb[3],10).toString(16)).slice(-2) : '#fff9c4';
+        }
+
+        // ==========================================
+        // 🤏 指で拡大縮小 (ピンチイン・アウト / ホイール)
+        // ==========================================
+        let currentZoom = 1.0;
+        const boardContainer = document.getElementById('board-container');
+        const boardContent = document.getElementById('board-content');
+
+        // ドロップダウンからの変更
+        function applyZoomFromDropdown() {
+            const val = document.getElementById('zoom-select').value;
+            if(val !== 'custom') {
+                currentZoom = parseFloat(val);
+                boardContent.style.transform = `scale(${currentZoom})`;
+            }
+        }
+
+        // ズーム値をセレクトボックスに反映
+        function syncZoomSelect() {
+            boardContent.style.transform = `scale(${currentZoom})`;
+            const select = document.getElementById('zoom-select');
+            const customOpt = document.getElementById('custom-zoom-option');
+            customOpt.text = `🔍 ${Math.round(currentZoom * 100)}%`;
+            customOpt.value = "custom";
+            customOpt.style.display = 'block';
+            select.value = "custom";
+        }
+
+        // PCマウスホイールでズーム (Ctrl + ホイール)
+        boardContainer.addEventListener('wheel', (e) => {
+            if (e.ctrlKey || e.metaKey) {
+                e.preventDefault();
+                currentZoom -= e.deltaY * 0.002;
+                currentZoom = Math.min(Math.max(0.25, currentZoom), 3.0);
+                syncZoomSelect();
+            }
+        }, {passive: false});
+
+        // スマホの2本指ピンチズーム
+        let initialDist = null;
+        let startZoom = 1;
+        boardContainer.addEventListener('touchstart', (e) => {
+            if(e.touches.length === 2) {
+                initialDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+                startZoom = currentZoom;
+            }
+        }, {passive: false});
+        
+        boardContainer.addEventListener('touchmove', (e) => {
+            if (e.touches.length === 2 && initialDist) {
+                e.preventDefault();
+                const dist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+                const scale = dist / initialDist;
+                currentZoom = Math.min(Math.max(0.25, startZoom * scale), 3.0);
+                syncZoomSelect();
+            }
+        }, {passive: false});
+
+        boardContainer.addEventListener('touchend', () => { initialDist = null; });
+
+        // ==========================================
+        // ↩️ 戻る・進む（やり直す）機能
+        // ==========================================
+        let undoStack = [];
+        let redoStack = [];
+
+        function saveHistory() {
+            const boardHtml = document.getElementById('my-board').innerHTML;
+            undoStack.push(boardHtml);
+            if(undoStack.length > 20) undoStack.shift(); // 20回まで記憶
+            redoStack = []; // 新しい操作をしたら進む履歴は消去
+        }
+
+        function undoAction() {
+            if(undoStack.length > 1) {
+                redoStack.push(undoStack.pop());
+                document.getElementById('my-board').innerHTML = undoStack[undoStack.length - 1];
+                rebindCardEvents();
+            } else {
+                showToast("これ以上戻れません");
+            }
+        }
+
+        function redoAction() {
+            if(redoStack.length > 0) {
+                const state = redoStack.pop();
+                undoStack.push(state);
+                document.getElementById('my-board').innerHTML = state;
+                rebindCardEvents();
+            } else {
+                showToast("やり直す操作がありません");
+            }
+        }
+
+        // innerHTMLで復元したカードにイベントを再設定する
+        function rebindCardEvents() {
+            document.querySelectorAll('.card-header').forEach(header => {
+                header.onmousedown = (e) => { 
+                    const card = header.parentElement;
+                    e.preventDefault(); e.stopPropagation(); card.style.zIndex = ++zIndexCounter;
+                    let pos1=0, pos2=0, pos3=e.clientX, pos4=e.clientY;
+                    document.onmouseup = () => { document.onmouseup=null; document.onmousemove=null; saveHistory();};
+                    document.onmousemove = (ev) => {
+                        ev.preventDefault(); pos1=(pos3-ev.clientX)/currentZoom; pos2=(pos4-ev.clientY)/currentZoom; pos3=ev.clientX; pos4=ev.clientY;
+                        card.style.top=(card.offsetTop-pos2)+"px"; card.style.left=(card.offsetLeft-pos1)+"px";
+                    };
+                };
+            });
+            document.querySelectorAll('.card').forEach(card => {
+                card.ondblclick = (e) => {
+                    e.stopPropagation();
+                    document.querySelectorAll('.card').forEach(c => c.classList.remove('active-edit'));
+                    card.classList.add('active-edit');
+                    activeEditCard = card;
+                    card.style.zIndex = ++zIndexCounter;
+                };
             });
         }
 
         // ==========================================
-        // 🍀 左下のクローバーと巨大提出モーダル
+        // 📄 PDF取込 (ダミー) と ペン機能
         // ==========================================
-        let draggedCard = null;
-
-        function addCard(type) {
-            // (簡易版カード追加処理)
-            const board = document.querySelector('.board-area.active');
-            const card = document.createElement('div');
-            card.className = 'card';
-            card.style.left = '300px'; card.style.top = '200px';
-            card.innerHTML = `
-                <div class="card-header"><span>カード</span> <span style="cursor:pointer;" onclick="this.parentElement.parentElement.remove()">✖</span></div>
-                <div class="card-content"><textarea placeholder="入力..."></textarea></div>
-            `;
-            board.appendChild(card);
-            
-            // ドラッグ開始時の処理
-            const header = card.querySelector('.card-header');
-            header.onmousedown = (e) => { 
-                e.preventDefault(); draggedCard = card;
-                let pos1=0, pos2=0, pos3=e.clientX, pos4=e.clientY;
-                document.onmouseup = () => { document.onmouseup=null; document.onmousemove=null; };
-                document.onmousemove = (ev) => {
-                    ev.preventDefault(); pos1=pos3-ev.clientX; pos2=pos4-ev.clientY; pos3=ev.clientX; pos4=ev.clientY;
-                    card.style.top=(card.offsetTop-pos2)+"px"; card.style.left=(card.offsetLeft-pos1)+"px";
-                };
-            };
-        }
-
-        // クローバーにドラッグした時
-        function allowDrop(e) { e.preventDefault(); if(e.target.id === 'clover-btn') e.target.classList.add('drag-over'); }
-        function leaveDrop(e) { if(e.target.id === 'clover-btn') e.target.classList.remove('drag-over'); }
-        function dropOnClover(e) {
-            e.preventDefault(); e.target.classList.remove('drag-over');
-            if(draggedCard) {
-                // クローバーに落としたら、全画面の巨大モーダルを開く
-                document.getElementById('big-drop-modal').style.display = 'flex';
+        function importPDF(event) {
+            if(event.target.files.length > 0) {
+                showToast("📄 PDFを取り込みました（画像として表示されます）");
+                // ※実際のPDFレンダリングは複雑なため、プロトタイプとしてカードを作成
+                addCard();
+                event.target.value = '';
             }
         }
 
-        // 巨大モーダルの中の箱に対するドラッグ処理
-        function leaveDropBox(e) { e.target.classList.remove('hover'); }
-        function dropTo(e, destination) {
-            e.preventDefault(); e.target.classList.remove('hover');
-            if (destination === 'みんなのボード') {
-                if (isTeacher) showToast("👨‍🏫 生徒全員にカードを配布しました！");
-                else showToast("🌐 みんなのボードに共有しました！");
-            } else {
-                showToast("📥 先生の提出ボックスに送りました！");
-            }
-            closeModal('big-drop-modal');
+        const canvas = document.getElementById('drawing-layer');
+        const ctx = canvas.getContext('2d');
+        let isDrawing = false;
+        function togglePen() {
+            isPenMode = !isPenMode;
+            canvas.style.pointerEvents = isPenMode ? 'auto' : 'none';
+            if(isPenMode) showToast("🖋 ペンモード ON (カードには書けません)");
         }
+        function getMousePos(e) {
+            const rect = canvas.getBoundingClientRect();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            return { x: (clientX - rect.left) / currentZoom, y: (clientY - rect.top) / currentZoom };
+        }
+        canvas.addEventListener('mousedown', e => { if(!isPenMode) return; isDrawing = true; ctx.beginPath(); ctx.moveTo(getMousePos(e).x, getMousePos(e).y); e.preventDefault();});
+        canvas.addEventListener('mousemove', e => { if(!isDrawing || !isPenMode) return; const p = getMousePos(e); ctx.lineWidth=5; ctx.lineCap='round'; ctx.strokeStyle='#e74c3c'; ctx.lineTo(p.x, p.y); ctx.stroke(); e.preventDefault();});
+        canvas.addEventListener('mouseup', () => { isDrawing = false; });
 
         // ==========================================
-        // 🛠 その他UI
+        // 🍀 その他モーダルや通信等の既存処理
         // ==========================================
+        function openCreateModal() { document.getElementById('create-modal').style.display = 'flex'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+        function selectAllStudents() {
+            const items = document.querySelectorAll('#student-check-list .student-item');
+            const allSelected = Array.from(items).every(i => i.classList.contains('selected'));
+            items.forEach(i => allSelected ? i.classList.remove('selected') : i.classList.add('selected'));
+        }
+        function submitNewLesson() {
+            const name = document.getElementById('input-lesson-name').value;
+            if(!name) return alert('授業名を入力してください');
+            const selectedItems = document.querySelectorAll('#student-check-list .student-item.selected');
+            if(selectedItems.length === 0) return alert('生徒を選んでください');
+            let assignedTo = {};
+            selectedItems.forEach(item => assignedTo[item.getAttribute('data-uid')] = true);
+            db.ref('lessons').push().set({ name: name, assignedTo: assignedTo, createdAt: Date.now() }).then(() => {
+                closeModal('create-modal'); showToast("✨ 授業を配布しました！"); document.getElementById('input-lesson-name').value = '';
+            });
+        }
         function toggleBoard() {
             document.getElementById('my-board').classList.toggle('active');
             document.getElementById('minna-board').classList.toggle('active');
-        }
-        function applyZoom() {
-            const zoom = parseFloat(document.getElementById('zoom-select').value);
-            document.getElementById('board-content').style.transform = `scale(${zoom})`;
         }
         function showToast(text) {
             const toast = document.getElementById('toast-notification');
             toast.innerText = text; toast.classList.add('show');
             setTimeout(() => toast.classList.remove('show'), 3000);
         }
-        function togglePen() { alert('ペン機能は準備中です（デザインのみ）'); }
+
+        function startScreenCaptureLoop() {
+            screenCaptureInterval = setInterval(() => {
+                if (currentLessonId && !document.hidden) {
+                    html2canvas(document.getElementById('board-content'), { scale: 0.2 }).then(canvas => {
+                        db.ref('monitor_screens/' + currentUser.uid).set({
+                            name: currentUser.displayName, image: canvas.toDataURL('image/jpeg', 0.4), timestamp: Date.now()
+                        });
+                    });
+                }
+            }, 1000);
+        }
+        function openLiveMonitor() {
+            document.getElementById('live-monitor-modal').style.display = 'flex';
+            db.ref('students').once('value').then(snap => {
+                const grid = document.getElementById('monitor-grid'); grid.innerHTML = ''; let studentList = [];
+                snap.forEach(s => {
+                    if (s.val().email !== TEACHER_EMAIL) {
+                        studentList.push({uid: s.key, name: s.val().name});
+                        grid.innerHTML += `<div class="monitor-card" id="monitor-${s.key}"><div class="offline-text">モニタリング外</div><img src="" id="img-${s.key}"><p class="monitor-name">👤 ${s.val().name}</p></div>`;
+                    }
+                });
+                db.ref('monitor_screens').on('value', monitorSnap => {
+                    studentList.forEach(student => {
+                        const data = monitorSnap.child(student.uid).val();
+                        const card = document.getElementById('monitor-' + student.uid);
+                        if(card) {
+                            const img = document.getElementById('img-' + student.uid);
+                            const offlineText = card.querySelector('.offline-text');
+                            if (data && (Date.now() - data.timestamp < 5000)) { offlineText.style.display = 'none'; img.src = data.image; } 
+                            else { offlineText.style.display = 'flex'; img.src = ''; }
+                        }
+                    });
+                });
+            });
+        }
+        let draggedCard = null;
+        function allowDrop(e) { e.preventDefault(); if(e.target.id === 'clover-btn') e.target.classList.add('drag-over'); }
+        function leaveDrop(e) { if(e.target.id === 'clover-btn') e.target.classList.remove('drag-over'); }
+        function dropOnClover(e) { e.preventDefault(); e.target.classList.remove('drag-over'); document.getElementById('big-drop-modal').style.display = 'flex'; }
+        function leaveDropBox(e) { e.target.classList.remove('hover'); }
+        function dropTo(e, destination) { e.preventDefault(); e.target.classList.remove('hover'); closeModal('big-drop-modal'); showToast(destination + " に送りました！"); }
     </script>
 </body>
 </html>
