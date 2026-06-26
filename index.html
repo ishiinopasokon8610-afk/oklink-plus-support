@@ -33,22 +33,9 @@
         .note-color-bar { height: 70px; display: flex; align-items: flex-end; padding: 15px; color: white; font-size: 18px; font-weight: bold; text-shadow: 1px 1px 3px rgba(0,0,0,0.3);}
         .note-info { padding: 15px; background: white; font-size: 13px; color: #888; }
 
-        /* 左下の「自由ノート」丸ボタン */
         .fab-btn { position: fixed; bottom: 30px; left: 30px; width: 85px; height: 85px; border-radius: 50%; background: #00bcd4; color: white; border: 3px solid white; box-shadow: 0 6px 15px rgba(0,0,0,0.3); cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 13px; font-weight: bold; z-index: 1000; font-family: 'Zen Maru Gothic'; transition: 0.2s;}
         .fab-btn .icon { font-size: 28px; margin-bottom: 2px; }
         .fab-btn:hover { background: #0097a7; transform: scale(1.1); }
-
-        /* ==========================================
-           👨‍🏫 授業作成＆名簿モーダル
-           ========================================== */
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.6); z-index: 2000; justify-content: center; align-items: center; backdrop-filter: blur(3px);}
-        .modal-box { background: white; padding: 30px; border-radius: 20px; width: 500px; max-width: 90%; max-height: 80vh; overflow-y: auto; border: 4px solid #ffca28; position: relative;}
-        .modal-box h2 { margin-top: 0; color: #d35400; border-bottom: 2px solid #ffe082; padding-bottom: 10px;}
-        .student-check-list { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0; max-height: 200px; overflow-y: auto; padding: 10px; background: #fffdf2; border: 2px solid #ffe082; border-radius: 10px;}
-        .student-item { background: white; padding: 8px; border-radius: 8px; border: 1px solid #ccc; cursor: pointer; display: flex; align-items: center; gap: 8px; }
-        .student-item.selected { background: #ffca28; color: white; border-color: #ff8f00; font-weight: bold; }
-        .modal-box input[type="text"] { width: 100%; padding: 10px; border: 2px solid #ffe082; border-radius: 10px; font-family: 'Zen Maru Gothic'; font-size: 16px; box-sizing: border-box; outline: none;}
-        .btn-create { width: 100%; background: #8bc34a; color: white; border: none; padding: 12px; border-radius: 10px; font-weight: bold; font-size: 16px; cursor: pointer; margin-top: 10px;}
 
         /* ==========================================
            📝 2. メインボード（本体）画面
@@ -60,33 +47,22 @@
         .board-area.active { display: block; }
         #drawing-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 5; pointer-events: none; }
 
-        /* クイックメニュー（先生専用・左上） */
         .quick-menu { display: none; position: absolute; top: 15px; left: 15px; background: rgba(0,0,0,0.7); color: white; padding: 10px 15px; border-radius: 10px; z-index: 2000; border: 2px solid #ffca28;}
         .quick-menu button { background: #e74c3c; color: white; border: none; padding: 5px 10px; cursor: pointer; border-radius: 5px; font-family: 'Zen Maru Gothic'; font-weight: bold;}
 
-        /* 🃏 黄色いカード */
         .card { background: #fff9c4; border: 3px solid #ffca28; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); position: absolute; width: 250px; height: 180px; z-index: 10; transition: box-shadow 0.2s;}
-        
-        /* 選択中（タップ時）は赤枠 */
         .card.selected { border-color: #e74c3c; box-shadow: 0 0 15px rgba(231, 76, 60, 0.6); z-index: 40;}
-        
-        /* 編集モード（ダブルタップ時） */
         .card.active-edit { border-color: #3498db; box-shadow: 0 0 20px rgba(52, 152, 219, 0.6); z-index: 50 !important;}
-        
         .card-header { background: #ffca28; height: 25px; cursor: grab; display: flex; justify-content: space-between; align-items: center; padding: 0 10px; font-weight: bold; color: #5a4b3c; border-radius: 11px 11px 0 0;}
         .card-content { height: calc(100% - 25px); position: relative; overflow: hidden; padding: 5px; box-sizing: border-box; display: flex; flex-direction: column;}
-        
-        /* カードの中身（動かせる要素） */
         .card-inner-item { width: 100%; flex: 1; cursor: move; position: relative; }
         .card-inner-item textarea { width: 100%; height: 100%; border: none; outline: none; resize: none; font-family: 'Zen Maru Gothic'; font-size: 16px; background: transparent; color: #333; cursor: text; box-sizing: border-box;}
 
-        /* ⭐️ 編集ツールバー（ダブルタップで出現） */
         .card-edit-toolbar { display: none; position: absolute; top: -50px; left: 50%; transform: translateX(-50%); background: white; padding: 5px 10px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); gap: 6px; border: 2px solid #ffca28; z-index: 60; white-space: nowrap;}
         .card.active-edit .card-edit-toolbar { display: flex; }
         .c-tool-btn { background: #fffdf2; border: 1px solid #ffe082; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; font-size: 14px; display: flex; justify-content: center; align-items: center; transition: 0.2s; padding: 0;}
         .c-tool-btn:hover { background: #ffecb3; transform: scale(1.1); }
 
-        /* 🛠 下部ツールバー（中央） */
         .bottom-toolbar { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: white; padding: 10px 20px; border-radius: 40px; box-shadow: 0 5px 20px rgba(0,0,0,0.15); display: flex; gap: 10px; align-items: center; z-index: 200; border: 3px solid #ffca28;}
         .action-btn { background: #fdfdfd; border: 2px solid #ddd; border-radius: 50%; font-size: 18px; width: 40px; height: 40px; cursor: pointer; transition: 0.2s;}
         .action-btn:hover { background: #eee; }
@@ -95,13 +71,15 @@
         .main-add-btn:active { transform: translateY(3px); box-shadow: none; }
         .pdf-btn { background: #3498db; color: white; border: none; border-radius: 20px; padding: 8px 15px; font-weight: bold; cursor: pointer; box-shadow: 0 3px 0 #2980b9;}
 
-        /* 📥 左下のアクションボタン */
         .board-actions { position: fixed; bottom: 20px; left: 20px; display: flex; gap: 15px; z-index: 1000; }
         .submit-btn { background: #e74c3c; color: white; padding: 15px 20px; border-radius: 15px; border: none; font-weight: bold; cursor: pointer; font-size: 16px; box-shadow: 0 4px 10px rgba(231, 76, 60, 0.4); font-family: 'Zen Maru Gothic'; transition: 0.2s;}
         .public-btn { background: #3498db; color: white; padding: 15px 20px; border-radius: 15px; border: none; font-weight: bold; cursor: pointer; font-size: 16px; box-shadow: 0 4px 10px rgba(52, 152, 219, 0.4); font-family: 'Zen Maru Gothic'; transition: 0.2s;}
         .submit-btn:hover, .public-btn:hover { transform: translateY(-3px); }
 
-        /* 👀 ライブモニタリング / 📥 提出物一覧 */
+        /* 👀 ライブモニタリング / 📥 提出物一覧 モーダル群 */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.6); z-index: 4000; justify-content: center; align-items: center; backdrop-filter: blur(3px);}
+        .modal-box { background: white; padding: 30px; border-radius: 20px; width: 90%; max-width: 1000px; height: 85vh; display: flex; flex-direction: column; border: 4px solid #ffca28; position: relative;}
+        
         #live-monitor-modal { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #2c3e50; z-index: 6000; flex-direction: column; }
         .monitor-header { background: #34495e; color: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; font-size: 20px; font-weight: bold;}
         .monitor-grid { flex: 1; padding: 20px; overflow-y: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; }
@@ -120,6 +98,10 @@
         <div class="header">
             <h1><img src="oklink.jpg" class="logo-icon"> マイノート（ホーム）</h1>
             <div style="display:flex; align-items:center; gap:10px;">
+                <div id="teacher-controls-home" style="display:none; gap:10px; margin-right:15px;">
+                    <button class="btn-base" style="background:#f39c12; color:white; border-color:#f39c12;" onclick="toggleScreenShare()">🖥️ 先生の画面共有</button>
+                    <button class="btn-base" style="background:#9b59b6; color:white; border-color:#9b59b6;" onclick="openLiveMonitorWindow()">👀 LIVEモニタニング</button>
+                </div>
                 <div id="user-info-dash" style="font-weight:bold; color: #d35400;">👤 通信中...</div>
             </div>
         </div>
@@ -127,9 +109,6 @@
         <div class="home-content">
             <div class="home-controls">
                 <h2 style="color: #5a4b3c; margin:0;">📚 あなたのノート一覧</h2>
-                <button id="btn-create-lesson" class="btn-base" style="display: none; background:#8bc34a; color:white; border-color:#8bc34a;" onclick="openCreateModal()">
-                    ➕ 授業を作成して配布
-                </button>
             </div>
             
             <div class="note-grid" id="lesson-grid">
@@ -143,22 +122,6 @@
         </button>
     </div>
 
-    <div id="create-modal" class="modal-overlay">
-        <div class="modal-box">
-            <button onclick="closeModal('create-modal')" style="position:absolute; top:15px; right:15px; background:none; border:none; font-size:20px; cursor:pointer; color:#888;">✖</button>
-            <h2>授業を作成して配布</h2>
-            <div style="margin-bottom: 10px;"><input type="text" id="input-lesson-name" placeholder="授業名を入力 (例: 国語 1学期)"></div>
-            <h3 style="margin: 15px 0 5px 0; font-size:16px;">配布する生徒を選択（名簿）</h3>
-            
-            <div class="student-check-list" id="student-check-list">
-                <p style="color:#aaa;">⏳ 名簿を準備中...</p>
-            </div>
-            
-            <button class="btn-base" style="width:100%; margin:0 0 10px 0; border:1px solid #ccc;" onclick="selectAllStudents()">全員を選択 / 解除</button>
-            <button class="btn-create" onclick="submitNewLesson()">このメンバーに授業を配布する</button>
-        </div>
-    </div>
-
     <div id="app-screen">
         <div class="header">
             <h1>
@@ -167,8 +130,11 @@
                 <button class="btn-base" onclick="toggleBoard()">マイボード ⇔ みんなのボード</button>
                 <button class="btn-base" style="background:#e67e22; color:white; border-color:#e67e22;" onclick="openSubmissionModal()">📥 提出物を見る</button>
             </h1>
-            <div style="display:flex; gap:10px;">
-                <button id="btn-live-monitor" class="btn-base" style="display:none; background:#9b59b6; color:white; border-color:#9b59b6;" onclick="openLiveMonitor()">👀 ライブモニタリング</button>
+            <div style="display:flex; align-items:center; gap:10px;">
+                <div id="teacher-controls-app" style="display:none; gap:10px; margin-right:15px;">
+                    <button class="btn-base" style="background:#f39c12; color:white; border-color:#f39c12;" onclick="toggleScreenShare()">🖥️ 先生の画面共有</button>
+                    <button class="btn-base" style="background:#9b59b6; color:white; border-color:#9b59b6;" onclick="openLiveMonitorWindow()">👀 LIVEモニタニング</button>
+                </div>
                 <button class="btn-base" style="background:#e74c3c; color:white; border-color:#e74c3c;" onclick="exitLesson()">🔙 ホームに戻る</button>
             </div>
         </div>
@@ -220,15 +186,14 @@
     <div id="live-monitor-modal">
         <div class="monitor-header">
             <span>👀 ライブモニタリング（全生徒リアルタイム）</span>
-            <button class="btn-base" style="background:#e74c3c; color:white; border:none;" onclick="closeModal('live-monitor-modal')">✖ 閉じる</button>
         </div>
         <div class="monitor-grid" id="monitor-grid"></div>
     </div>
 
-    <div id="submission-modal" class="modal-overlay" style="z-index: 4000;">
-        <div class="modal-box" style="width: 90%; max-width: 1000px; height: 85vh; display: flex; flex-direction: column;">
+    <div id="submission-modal" class="modal-overlay">
+        <div class="modal-box">
             <button onclick="closeModal('submission-modal')" style="position:absolute; top:15px; right:15px; background:none; border:none; font-size:20px; cursor:pointer; color:#888;">✖</button>
-            <h2>📥 提出ボックス（みんなの回答・相互評価）</h2>
+            <h2 style="margin-top:0; color:#d35400; border-bottom:2px solid #ffe082; padding-bottom:10px;">📥 提出ボックス（みんなの回答・相互評価）</h2>
             <div id="submission-container" style="flex:1; overflow-y:auto; display:grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap:20px; padding:15px; background:#fffdf2; border-radius:10px; border:2px solid #ffe082;">
                 <p style="color:#aaa;">⏳ 提出物を読み込んでいます...</p>
             </div>
@@ -242,6 +207,9 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <script>
+        // ==========================================
+        // 📋 1. 初期化と別ウィンドウ(モニタリング)の判定
+        // ==========================================
         const firebaseConfig = {
             apiKey: "AIzaSyB7jGlKT6LKGxIqWdJrvxuT8Fj6oJ3U_5A",
             authDomain: "oklink-plus-support.firebaseapp.com",
@@ -249,6 +217,9 @@
             projectId: "oklink-plus-support"
         };
         const TEACHER_EMAIL = "ishiinopasokon8610@gmail.com"; 
+
+        // URLパラメータを見て「LIVEモニタリング用ウィンドウ」か判定
+        const isMonitorWindow = new URLSearchParams(window.location.search).get('monitor') === 'true';
 
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
@@ -259,105 +230,91 @@
         let currentLessonId = null;
         let screenCaptureInterval = null;
         let selectedCard = null; 
-        let cardLinks = []; // 🔗 カード同士の接続情報 [{from: id, to: id}]
-        let linkingSourceId = null; // 🔗 リンク元のカードID
+        let cardLinks = []; 
+        let linkingSourceId = null; 
 
-        // --- 認証とロード ---
+        // 別ウィンドウ起動時のUI制御
+        if (isMonitorWindow) {
+            window.onload = () => {
+                document.getElementById('home-screen').style.display = 'none';
+                document.getElementById('app-screen').style.display = 'none';
+                document.getElementById('live-monitor-modal').style.display = 'flex';
+                document.getElementById('live-monitor-modal').style.zIndex = '9999';
+            };
+        }
+
+        // ==========================================
+        // 🔐 2. 認証とデータロード
+        // ==========================================
         auth.onAuthStateChanged(user => {
             if (user) {
                 currentUser = user;
                 const userEmail = user.email ? user.email.toLowerCase() : "";
                 isTeacher = (userEmail === TEACHER_EMAIL.toLowerCase());
                 
-                document.getElementById('user-info-dash').innerText = isTeacher ? `👨‍🏫 先生 (${user.displayName || 'ゲスト'})` : `👤 生徒 (${user.displayName || 'ゲスト'})`;
-                
-                db.ref('students/' + user.uid).update({ name: user.displayName || '生徒', email: userEmail, lastLogin: Date.now() });
-
-                if (isTeacher) {
-                    document.getElementById('btn-create-lesson').style.display = 'block';
-                    document.getElementById('btn-live-monitor').style.display = 'block';
+                // モニター用ウィンドウの場合はすぐさま監視処理を開始して終了
+                if (isMonitorWindow) {
+                    initLiveMonitorData();
+                    return;
                 }
                 
-                loadStudentListFast(); 
+                document.getElementById('user-info-dash').innerText = isTeacher ? `👨‍🏫 先生 (${user.displayName || 'ゲスト'})` : `👤 生徒 (${user.displayName || 'ゲスト'})`;
+                
+                // 📝 ログイン即時名簿登録
+                db.ref('students/' + user.uid).update({ name: user.displayName || '生徒', email: userEmail, lastLogin: Date.now() });
+
+                // 先生限定ボタンの表示
+                if (isTeacher) {
+                    document.getElementById('teacher-controls-home').style.display = 'flex';
+                    document.getElementById('teacher-controls-app').style.display = 'flex';
+                }
+                
                 loadAllNotes(); 
             } else {
                 auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
             }
         });
 
-        // 🏠 ホーム画面：すべてのノートを読み込む
+        // ==========================================
+        // 🏠 3. ホーム画面（ノート一覧・保存データ復元）
+        // ==========================================
         function loadAllNotes() {
             const grid = document.getElementById('lesson-grid');
+            if(!currentUser) return;
             
-            db.ref('lessons').on('value', snap => {
+            db.ref('users/' + currentUser.uid + '/notes').on('value', mySnap => {
                 grid.innerHTML = ''; 
                 let hasNotes = false;
-                const colors = ['#3498db', '#e74c3c', '#2ecc71', '#f39c12', '#9b59b6'];
-
-                if(snap.exists()) {
-                    snap.forEach(child => {
-                        const lesson = child.val();
-                        if (isTeacher || (lesson.assignedTo && lesson.assignedTo[currentUser.uid])) {
-                            hasNotes = true;
-                            const bgColor = colors[child.key.charCodeAt(child.key.length-1) % colors.length];
-                            grid.innerHTML += `
-                                <div class="note-card" onclick="enterLesson('${child.key}', '${lesson.name}', 'lesson')">
-                                    <div class="note-color-bar" style="background: ${bgColor};">${lesson.name}</div>
-                                    <div class="note-info">先生からの配布ノート</div>
-                                </div>
-                            `;
-                        }
+                
+                if (mySnap.exists()) {
+                    hasNotes = true;
+                    mySnap.forEach(child => {
+                        const note = child.val();
+                        grid.innerHTML += `
+                            <div class="note-card" onclick="enterLesson('${child.key}', '${note.title}', 'free')">
+                                <div class="note-color-bar" style="background: #00bcd4;">📓 ${note.title}</div>
+                                <div class="note-info">最終更新<br>${new Date(note.timestamp).toLocaleDateString()} ${new Date(note.timestamp).toLocaleTimeString()}</div>
+                            </div>
+                        `;
                     });
                 }
-
-                db.ref('users/' + currentUser.uid + '/notes').once('value', mySnap => {
-                    if (mySnap.exists()) {
-                        hasNotes = true;
-                        mySnap.forEach(child => {
-                            const note = child.val();
-                            grid.innerHTML += `
-                                <div class="note-card" onclick="enterLesson('${child.key}', '${note.title}', 'free')">
-                                    <div class="note-color-bar" style="background: #00bcd4;">📓 ${note.title}</div>
-                                    <div class="note-info">自分の自由ノート<br>${new Date(note.timestamp).toLocaleDateString()}</div>
-                                </div>
-                            `;
-                        });
-                    }
-                    if (!hasNotes) grid.innerHTML = '<p style="color:#888; font-size: 18px; font-weight: bold;">📭 まだノートがありません。<br>左下のボタンから作ってみましょう！</p>';
-                });
+                if (!hasNotes) grid.innerHTML = '<p style="color:#888; font-size: 18px; font-weight: bold;">📭 まだノートがありません。<br>左下の「自由ノート」から作ってみましょう！</p>';
             });
         }
 
-        // 新しい自由ノートを作る
         function createNewFreeNote() {
+            if(!currentUser) return;
             const newNoteRef = db.ref('users/' + currentUser.uid + '/notes').push();
             newNoteRef.set({
                 title: "自由ノート",
                 timestamp: Date.now(),
-                data: "" 
+                boardHtml: "",
+                linksData: "[]"
             }).then(() => {
                 enterLesson(newNoteRef.key, '📓 自由ノート', 'free');
             });
         }
 
-        // 👨‍🎓 名簿
-        function loadStudentListFast() {
-            const list = document.getElementById('student-check-list');
-            db.ref('students').on('value', snap => {
-                list.innerHTML = ''; let count = 0;
-                if (snap.exists()) {
-                    snap.forEach(s => {
-                        if ((s.val().email || "").toLowerCase() !== TEACHER_EMAIL.toLowerCase()) {
-                            list.innerHTML += `<div class="student-item" onclick="this.classList.toggle('selected')" data-uid="${s.key}"><input type="checkbox" style="pointer-events:none;"> 👤 ${s.val().name || '名前なし'}</div>`;
-                            count++;
-                        }
-                    });
-                }
-                if (count === 0) list.innerHTML = '<div style="grid-column: span 2; color:#d35400;">📭 まだ生徒がいません。</div>';
-            });
-        }
-
-        // 🚪 ノートへ入る
         function enterLesson(id, name, type) {
             currentLessonId = id;
             cardLinks = [];
@@ -369,13 +326,24 @@
             
             document.getElementById('current-lesson-title').innerText = name;
             
-            document.getElementById('my-board').innerHTML = '<h2 style="position:absolute; top:10px; left:20px; color:#ccc;">✏️ マイボード</h2>';
-            document.getElementById('minna-board').innerHTML = '<h2 style="position:absolute; top:10px; left:20px; color:#ccc;">🌐 みんなのボード</h2>';
-            document.getElementById('drawing-layer').getContext('2d').clearRect(0,0,3000,3000);
-            drawLinks();
-            
-            saveHistory(); 
-            if (!isTeacher) startScreenCaptureLoop();
+            // Firebaseからノートの続きを読み込む
+            db.ref('users/' + currentUser.uid + '/notes/' + id).once('value').then(snap => {
+                if (snap.exists() && snap.val().boardHtml) {
+                    document.getElementById('my-board').innerHTML = snap.val().boardHtml;
+                    cardLinks = JSON.parse(snap.val().linksData || '[]');
+                } else {
+                    document.getElementById('my-board').innerHTML = '<h2 style="position:absolute; top:10px; left:20px; color:#ccc;">✏️ マイボード</h2>';
+                }
+                
+                document.getElementById('minna-board').innerHTML = '<h2 style="position:absolute; top:10px; left:20px; color:#ccc;">🌐 みんなのボード</h2>';
+                document.getElementById('drawing-layer').getContext('2d').clearRect(0,0,3000,3000);
+                
+                rebindCardEvents(); 
+                drawLinks();
+                saveHistory(); 
+                
+                if (!isTeacher) startScreenCaptureLoop();
+            });
         }
 
         function exitLesson() {
@@ -383,11 +351,103 @@
             clearInterval(screenCaptureInterval);
             document.getElementById('app-screen').style.display = 'none';
             document.getElementById('home-screen').style.display = 'flex';
-            loadAllNotes(); 
         }
 
         // ==========================================
-        // 🃏 カードの作成・移動・編集・矢印リンク
+        // 👀 4. LIVEモニタニング（別ウィンドウ処理）
+        // ==========================================
+        function openLiveMonitorWindow() {
+            window.open(window.location.href.split('?')[0] + '?monitor=true', '_blank', 'width=1000,height=800');
+        }
+
+        function initLiveMonitorData() {
+            db.ref('students').on('value', snap => {
+                const grid = document.getElementById('monitor-grid');
+                grid.innerHTML = ''; 
+                let studentList = [];
+                
+                snap.forEach(s => {
+                    const studentData = s.val(); 
+                    const sEmail = studentData.email ? studentData.email.toLowerCase() : "";
+                    if (sEmail !== TEACHER_EMAIL.toLowerCase()) {
+                        studentList.push({uid: s.key, name: studentData.name});
+                        grid.innerHTML += `<div class="monitor-card" id="monitor-${s.key}"><div class="offline-text">モニタニング外</div><img src="" id="img-${s.key}"><p class="monitor-name">👤 ${studentData.name}</p></div>`;
+                    }
+                });
+
+                db.ref('monitor_screens').on('value', monitorSnap => {
+                    studentList.forEach(student => {
+                        const data = monitorSnap.child(student.uid).val(); 
+                        const card = document.getElementById('monitor-' + student.uid);
+                        if(card) {
+                            const img = document.getElementById('img-' + student.uid); 
+                            const offlineText = card.querySelector('.offline-text');
+                            
+                            // 更新が6秒以内、かつ非表示(hidden)でない場合のみアクティブ
+                            if (data && (Date.now() - data.timestamp < 6000) && data.status !== 'hidden') { 
+                                offlineText.style.display = 'none'; 
+                                img.src = data.image; 
+                            } else { 
+                                offlineText.style.display = 'flex'; 
+                                img.src = ''; 
+                            }
+                        }
+                    });
+                });
+            });
+        }
+
+        function startScreenCaptureLoop() {
+            if (screenCaptureInterval) clearInterval(screenCaptureInterval);
+            screenCaptureInterval = setInterval(() => {
+                if (currentLessonId) {
+                    if (!document.hidden) {
+                        html2canvas(document.getElementById('board-content'), { scale: 0.2 }).then(canvas => { 
+                            db.ref('monitor_screens/' + currentUser.uid).set({ 
+                                name: currentUser.displayName, 
+                                image: canvas.toDataURL('image/jpeg', 0.4), 
+                                timestamp: Date.now(),
+                                status: 'active'
+                            }); 
+                        });
+                    } else {
+                        // 別のタブを見ているときは status: 'hidden' を送信
+                        db.ref('monitor_screens/' + currentUser.uid).update({ 
+                            timestamp: Date.now(),
+                            status: 'hidden'
+                        });
+                    }
+                }
+            }, 2000); // 2秒ごとに更新
+        }
+
+        // ==========================================
+        // 🖥️ 5. 先生の画面共有（簡易版）
+        // ==========================================
+        let isSharing = false;
+        let shareInterval;
+        function toggleScreenShare() {
+            isSharing = !isSharing;
+            if(isSharing) {
+                showToast("🖥️ 画面共有を開始しました（送信中...）");
+                shareInterval = setInterval(() => {
+                    if(!document.hidden) {
+                        html2canvas(document.getElementById('app-screen'), { scale: 0.3 }).then(canvas => {
+                            db.ref('shared_screen/teacher').set({
+                                image: canvas.toDataURL('image/jpeg', 0.5), timestamp: Date.now()
+                            });
+                        });
+                    }
+                }, 2000);
+            } else {
+                clearInterval(shareInterval);
+                db.ref('shared_screen/teacher').remove();
+                showToast("🖥️ 画面共有を終了しました");
+            }
+        }
+
+        // ==========================================
+        // 🃏 6. カードの作成・移動・編集・矢印リンク
         // ==========================================
         let zIndexCounter = 10;
         let isPenMode = false;
@@ -402,36 +462,20 @@
             card.style.top = (Math.random() * 100 + window.innerHeight/3) + 'px';
             card.style.zIndex = ++zIndexCounter;
 
-            // ① タップで選択（赤枠）＆リンク先指定の受付
             card.onclick = (e) => {
                 e.stopPropagation();
                 if (linkingSourceId) {
                     if (linkingSourceId !== card.dataset.id) {
                         const exists = cardLinks.some(l => l.from === linkingSourceId && l.to === card.dataset.id);
-                        if (!exists) {
-                            cardLinks.push({ from: linkingSourceId, to: card.dataset.id });
-                            drawLinks();
-                            showToast("🔗 カードを矢印でつなぎました！");
-                        }
-                        linkingSourceId = null;
-                        clearSelection();
-                        return;
-                    } else {
-                        linkingSourceId = null;
-                    }
+                        if (!exists) { cardLinks.push({ from: linkingSourceId, to: card.dataset.id }); drawLinks(); showToast("🔗 カードを矢印でつなぎました！"); }
+                        linkingSourceId = null; clearSelection(); return;
+                    } else { linkingSourceId = null; }
                 }
-                clearSelection(e);
-                card.classList.add('selected');
-                selectedCard = card;
-                card.style.zIndex = ++zIndexCounter;
+                clearSelection(e); card.classList.add('selected'); selectedCard = card; card.style.zIndex = ++zIndexCounter;
             };
 
-            // ② ダブルタップで編集モード（青枠＆ツールバー）
             card.ondblclick = (e) => {
-                e.stopPropagation();
-                clearSelection(e);
-                card.classList.add('active-edit');
-                card.style.zIndex = ++zIndexCounter;
+                e.stopPropagation(); clearSelection(e); card.classList.add('active-edit'); card.style.zIndex = ++zIndexCounter;
             };
 
             card.innerHTML = `
@@ -444,489 +488,201 @@
                     <button class="c-tool-btn" title="削除" style="color:#e74c3c;" onclick="deleteCard('${cardId}', this, event)">🗑️</button>
                 </div>
                 <div class="card-header"><span>カード</span> <span style="cursor:pointer; color:#e74c3c;" onclick="deleteCard('${cardId}', this, event)">✖</span></div>
-                
-                <div class="card-content">
-                    <div class="card-inner-item">
-                        <textarea placeholder="文字を入力..."></textarea>
-                    </div>
-                </div>
+                <div class="card-content"><div class="card-inner-item"><textarea placeholder="文字を入力..."></textarea></div></div>
             `;
             board.appendChild(card);
             
             makeDraggable(card, card.querySelector('.card-header'));
             makeDraggable(card.querySelector('.card-inner-item'), card.querySelector('.card-inner-item'));
-
-            card.click();
-            saveHistory();
+            card.click(); saveHistory();
         }
 
-        // 学校のタブレット・PC両方で快適に動く高精度ドラッグ処理 (ズーム＆矢印追従対応)
         function makeDraggable(el, handle) {
             const startDrag = (e) => {
                 if (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT') return;
                 const targetCard = el.classList.contains('card') ? el : el.closest('.card');
                 if (targetCard) targetCard.style.zIndex = ++zIndexCounter;
                 
-                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-                let pos3 = clientX;
-                let pos4 = clientY;
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX; const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                let pos3 = clientX, pos4 = clientY;
                 
                 const moveDrag = (ev) => {
-                    const moveX = ev.touches ? ev.touches[0].clientX : ev.clientX;
-                    const moveY = ev.touches ? ev.touches[0].clientY : ev.clientY;
-                    let pos1 = (pos3 - moveX) / currentZoom;
-                    let pos2 = (pos4 - moveY) / currentZoom;
-                    pos3 = moveX;
-                    pos4 = moveY;
+                    const moveX = ev.touches ? ev.touches[0].clientX : ev.clientX; const moveY = ev.touches ? ev.touches[0].clientY : ev.clientY;
+                    let pos1 = (pos3 - moveX) / currentZoom, pos2 = (pos4 - moveY) / currentZoom;
+                    pos3 = moveX; pos4 = moveY;
                     
                     const moveTarget = el.classList.contains('card') ? el : targetCard;
-                    if(moveTarget) {
-                        moveTarget.style.top = (moveTarget.offsetTop - pos2) + "px";
-                        moveTarget.style.left = (moveTarget.offsetLeft - pos1) + "px";
-                        drawLinks(); // ドラッグ中に矢印をリアルタイム再描画
-                    }
+                    if(moveTarget) { moveTarget.style.top = (moveTarget.offsetTop - pos2) + "px"; moveTarget.style.left = (moveTarget.offsetLeft - pos1) + "px"; drawLinks(); }
                 };
                 
-                const endDrag = () => {
-                    document.removeEventListener('mousemove', moveDrag);
-                    document.removeEventListener('mouseup', endDrag);
-                    document.removeEventListener('touchmove', moveDrag);
-                    document.removeEventListener('touchend', endDrag);
-                    saveHistory();
-                };
+                const endDrag = () => { document.removeEventListener('mousemove', moveDrag); document.removeEventListener('mouseup', endDrag); document.removeEventListener('touchmove', moveDrag); document.removeEventListener('touchend', endDrag); saveHistory(); };
                 
-                document.addEventListener('mousemove', moveDrag, { passive: false });
-                document.addEventListener('mouseup', endDrag);
-                document.addEventListener('touchmove', moveDrag, { passive: false });
-                document.addEventListener('touchend', endDrag);
+                document.addEventListener('mousemove', moveDrag, { passive: false }); document.addEventListener('mouseup', endDrag);
+                document.addEventListener('touchmove', moveDrag, { passive: false }); document.addEventListener('touchend', endDrag);
             };
-
             handle.addEventListener('mousedown', (e) => { e.preventDefault(); e.stopPropagation(); startDrag(e); });
             handle.addEventListener('touchstart', (e) => { e.stopPropagation(); startDrag(e); }, { passive: true });
         }
 
-        // 🔗 リンク接続線の描画関数
         function drawLinks() {
-            const lCanvas = document.getElementById('link-layer');
-            if (!lCanvas) return;
-            const lCtx = lCanvas.getContext('2d');
-            lCtx.clearRect(0, 0, 3000, 3000);
-            
-            lCtx.strokeStyle = '#ff9800';
-            lCtx.lineWidth = 4;
-            lCtx.lineCap = 'round';
+            const lCanvas = document.getElementById('link-layer'); if (!lCanvas) return;
+            const lCtx = lCanvas.getContext('2d'); lCtx.clearRect(0, 0, 3000, 3000);
+            lCtx.strokeStyle = '#ff9800'; lCtx.lineWidth = 4; lCtx.lineCap = 'round';
             
             cardLinks.forEach(link => {
-                const fromEl = document.querySelector(`[data-id="${link.from}"]`);
-                const toEl = document.querySelector(`[data-id="${link.to}"]`);
+                const fromEl = document.querySelector(`[data-id="${link.from}"]`); const toEl = document.querySelector(`[data-id="${link.to}"]`);
                 if (fromEl && toEl) {
-                    const fromX = fromEl.offsetLeft + fromEl.offsetWidth / 2;
-                    const fromY = fromEl.offsetTop + fromEl.offsetHeight / 2;
-                    const toX = toEl.offsetLeft + toEl.offsetWidth / 2;
-                    const toY = toEl.offsetTop + toEl.offsetHeight / 2;
-                    
-                    // 線を引く
-                    lCtx.beginPath();
-                    lCtx.moveTo(fromX, fromY);
-                    lCtx.lineTo(toX, toY);
-                    lCtx.stroke();
-                    
-                    // 矢印の頭
+                    const fromX = fromEl.offsetLeft + fromEl.offsetWidth / 2, fromY = fromEl.offsetTop + fromEl.offsetHeight / 2;
+                    const toX = toEl.offsetLeft + toEl.offsetWidth / 2, toY = toEl.offsetTop + toEl.offsetHeight / 2;
+                    lCtx.beginPath(); lCtx.moveTo(fromX, fromY); lCtx.lineTo(toX, toY); lCtx.stroke();
                     const angle = Math.atan2(toY - fromY, toX - fromX);
-                    lCtx.fillStyle = '#ff9800';
-                    lCtx.beginPath();
-                    lCtx.moveTo(toX, toY);
+                    lCtx.fillStyle = '#ff9800'; lCtx.beginPath(); lCtx.moveTo(toX, toY);
                     lCtx.lineTo(toX - 15 * Math.cos(angle - Math.PI / 6), toY - 15 * Math.sin(angle - Math.PI / 6));
-                    lCtx.lineTo(toX - 15 * Math.cos(angle + Math.PI / 6), toY - 15 * Math.sin(angle + Math.PI / 6));
-                    lCtx.fill();
+                    lCtx.lineTo(toX - 15 * Math.cos(angle + Math.PI / 6), toY - 15 * Math.sin(angle + Math.PI / 6)); lCtx.fill();
                 }
             });
         }
 
-        function startLinking(cardId, event) {
-            event.stopPropagation();
-            linkingSourceId = cardId;
-            showToast("🔗 つなぎたい先のカードをタップしてください");
-        }
-
+        function startLinking(cardId, event) { event.stopPropagation(); linkingSourceId = cardId; showToast("🔗 つなぎたい先のカードをタップしてください"); }
         function deleteCard(cardId, btn, event) {
-            event.stopPropagation();
-            const card = btn.closest('.card');
-            if (card) {
-                card.remove();
-                cardLinks = cardLinks.filter(l => l.from !== cardId && l.to !== cardId);
-                drawLinks();
-                if (selectedCard === card) selectedCard = null;
-                saveHistory();
-            }
+            event.stopPropagation(); const card = btn.closest('.card');
+            if (card) { card.remove(); cardLinks = cardLinks.filter(l => l.from !== cardId && l.to !== cardId); drawLinks(); if (selectedCard === card) selectedCard = null; saveHistory(); }
         }
-
-        // 📷 カードの中に画像・写真を埋め込む処理
-        function triggerCardImage(btn, event) {
-            event.stopPropagation();
-            btn.nextElementSibling.click(); 
-        }
-
+        function triggerCardImage(btn, event) { event.stopPropagation(); btn.nextElementSibling.click(); }
         function loadCardImage(input, event) {
             event.stopPropagation();
             if (input.files && input.files[0]) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    const card = input.closest('.card');
-                    let imgBox = card.querySelector('.card-image-box');
-                    if (!imgBox) {
-                        imgBox = document.createElement('div');
-                        imgBox.className = 'card-image-box';
-                        imgBox.style = "width:100%; height:70px; margin-bottom:5px; text-align:center; overflow:hidden; border-radius:8px; background:#fafafa; display:flex; justify-content:center; align-items:center; border:1px dashed #ffe082;";
-                        const content = card.querySelector('.card-content');
-                        content.insertBefore(imgBox, content.firstChild);
+                    const card = input.closest('.card'); let imgBox = card.querySelector('.card-image-box');
+                    if (!imgBox) { imgBox = document.createElement('div'); imgBox.className = 'card-image-box'; imgBox.style = "width:100%; height:70px; margin-bottom:5px; text-align:center; overflow:hidden; border-radius:8px; background:#fafafa; display:flex; justify-content:center; align-items:center; border:1px dashed #ffe082;";
+                        const content = card.querySelector('.card-content'); content.insertBefore(imgBox, content.firstChild);
                     }
-                    imgBox.innerHTML = `<img src="${e.target.result}" style="max-width:100%; max-height:100%; object-fit:contain;">`;
-                    saveHistory();
+                    imgBox.innerHTML = `<img src="${e.target.result}" style="max-width:100%; max-height:100%; object-fit:contain;">`; saveHistory();
                 };
                 reader.readAsDataURL(input.files[0]);
             }
         }
-
-        // 背景クリックで選択解除
         function clearSelection(e) {
             if(!e || (e.target.id === 'board-container' || e.target.id === 'board-content' || e.target.id === 'drawing-layer' || e.target.id === 'link-layer')) {
-                document.querySelectorAll('.card').forEach(c => {
-                    c.classList.remove('selected');
-                    c.classList.remove('active-edit');
-                });
-                selectedCard = null;
-                linkingSourceId = null;
+                document.querySelectorAll('.card').forEach(c => { c.classList.remove('selected'); c.classList.remove('active-edit'); });
+                selectedCard = null; linkingSourceId = null;
             }
         }
-
         function toggleCardPen(btn, event) { event.stopPropagation(); togglePen(); btn.classList.toggle('active'); }
         function changeCardColor(btn, event) {
-            event.stopPropagation();
-            const card = btn.closest('.card');
-            const colors = ['#fff9c4', '#ffcdd2', '#c8e6c9', '#bbdefb', '#ffffff'];
-            let currentColor = card.style.backgroundColor || '#fff9c4';
-            let nextColor = colors[(colors.indexOf(rgb2hex(currentColor)) + 1) % colors.length];
-            card.style.backgroundColor = nextColor || colors[1];
+            event.stopPropagation(); const card = btn.closest('.card'); const colors = ['#fff9c4', '#ffcdd2', '#c8e6c9', '#bbdefb', '#ffffff'];
+            let currentColor = card.style.backgroundColor || '#fff9c4'; let nextColor = colors[(colors.indexOf(rgb2hex(currentColor)) + 1) % colors.length]; card.style.backgroundColor = nextColor || colors[1];
         }
         function rgb2hex(rgb) {
-            if(/^#[0-9A-F]{6}$/i.test(rgb)) return rgb.toLowerCase();
-            rgb = rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+            if(/^#[0-9A-F]{6}$/i.test(rgb)) return rgb.toLowerCase(); rgb = rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
             return rgb ? "#" + ("0" + parseInt(rgb[1],10).toString(16)).slice(-2) + ("0" + parseInt(rgb[2],10).toString(16)).slice(-2) + ("0" + parseInt(rgb[3],10).toString(16)).slice(-2) : '#fff9c4';
         }
 
         // ==========================================
-        // 📥 提出ボックス送信 ＆ 相互閲覧一覧（いいね！）
+        // 📥 7. 提出とみんなの回答一覧
         // ==========================================
         function submitSelectedCard() {
             if (!selectedCard) return alert("提出するカードをタップして赤枠にしてから押してください！");
-            
-            // 送信前にテキストエリアのリアルタイム入力をHTMLに強制同期
-            const ta = selectedCard.querySelector('textarea');
-            if (ta) ta.textContent = ta.value; 
-
-            db.ref('submissions/' + currentLessonId + '/' + currentUser.uid).push({
-                sender: currentUser.displayName,
-                html: selectedCard.outerHTML,
-                timestamp: Date.now()
-            }).then(() => {
-                showToast("📥 提出ボックスに送りました！");
-                clearSelection();
-            });
+            const ta = selectedCard.querySelector('textarea'); if (ta) ta.textContent = ta.value; 
+            db.ref('submissions/' + currentLessonId + '/' + currentUser.uid).push({ sender: currentUser.displayName, html: selectedCard.outerHTML, timestamp: Date.now() }).then(() => { showToast("📥 提出ボックスに送りました！"); clearSelection(); });
         }
 
         function sendSelectedToPublic() {
             if (!selectedCard) return alert("共有するカードをタップして赤枠にしてから押してください！");
-            
-            const ta = selectedCard.querySelector('textarea');
-            if (ta) ta.textContent = ta.value;
-
-            const minnaBoard = document.getElementById('minna-board');
-            const clone = selectedCard.cloneNode(true);
-            clone.classList.remove('selected');
-            clone.classList.remove('active-edit');
-            
-            const author = document.createElement('div');
-            author.style = "position:absolute; bottom:5px; right:5px; background:rgba(255,255,255,0.8); padding:2px 5px; font-size:11px; font-weight:bold; border-radius:5px;";
-            author.innerText = "👤 " + currentUser.displayName;
-            clone.appendChild(author);
-
-            minnaBoard.appendChild(clone);
-            rebindCardEvents();
-            showToast("🌍 みんなのボードにコピーしました！");
-            clearSelection();
+            const ta = selectedCard.querySelector('textarea'); if (ta) ta.textContent = ta.value;
+            const minnaBoard = document.getElementById('minna-board'); const clone = selectedCard.cloneNode(true);
+            clone.classList.remove('selected'); clone.classList.remove('active-edit');
+            const author = document.createElement('div'); author.style = "position:absolute; bottom:5px; right:5px; background:rgba(255,255,255,0.8); padding:2px 5px; font-size:11px; font-weight:bold; border-radius:5px;"; author.innerText = "👤 " + currentUser.displayName; clone.appendChild(author);
+            minnaBoard.appendChild(clone); rebindCardEvents(); showToast("🌍 みんなのボードにコピーしました！"); clearSelection();
         }
 
-        // 📥 提出ボックス（みんなの広場）を開く
         function openSubmissionModal() {
-            if (!currentLessonId) return alert("授業ノートに入ってから開いてください");
+            if (!currentLessonId) return alert("ノートに入ってから開いてください");
             document.getElementById('submission-modal').style.display = 'flex';
-            const container = document.getElementById('submission-container');
-            container.innerHTML = '<p style="color:#aaa;">⏳ 提出物を読み込んでいます...</p>';
-            
+            const container = document.getElementById('submission-container'); container.innerHTML = '<p style="color:#aaa;">⏳ 提出物を読み込んでいます...</p>';
             db.ref('submissions/' + currentLessonId).on('value', snap => {
-                container.innerHTML = '';
-                let hasSubmissions = false;
-                
+                container.innerHTML = ''; let hasSubmissions = false;
                 if (snap.exists()) {
                     snap.forEach(userSnap => {
                         const userId = userSnap.key;
                         userSnap.forEach(cardSnap => {
-                            hasSubmissions = true;
-                            const cardData = cardSnap.val();
-                            const cardKey = cardSnap.key;
-                            
-                            let likeCount = cardData.likes ? Object.keys(cardData.likes).length : 0;
-                            const isLikedByMe = cardData.likes && cardData.likes[currentUser.uid];
-                            
-                            const wrapper = document.createElement('div');
-                            wrapper.style = "background:white; border:2px solid #ffe082; border-radius:15px; padding:12px; box-shadow:0 4px 10px rgba(0,0,0,0.05); display:flex; flex-direction:column; height:240px; position:relative; box-sizing:border-box;";
-                            
+                            hasSubmissions = true; const cardData = cardSnap.val(); const cardKey = cardSnap.key;
+                            let likeCount = cardData.likes ? Object.keys(cardData.likes).length : 0; const isLikedByMe = cardData.likes && cardData.likes[currentUser.uid];
+                            const wrapper = document.createElement('div'); wrapper.style = "background:white; border:2px solid #ffe082; border-radius:15px; padding:12px; box-shadow:0 4px 10px rgba(0,0,0,0.05); display:flex; flex-direction:column; height:240px; position:relative; box-sizing:border-box;";
                             wrapper.innerHTML = `
-                                <div style="font-weight:bold; color:#d35400; border-bottom:2px solid #ffe082; padding-bottom:5px; margin-bottom:8px; font-size:14px;">
-                                    👤 ${cardData.sender || '生徒'}
-                                </div>
-                                <div style="flex:1; overflow:hidden; font-size:14px; background:#fff9c4; border-radius:8px; border:1px solid #ffca28; padding:8px; position:relative;">
-                                    ${extractCardContent(cardData.html)}
-                                </div>
+                                <div style="font-weight:bold; color:#d35400; border-bottom:2px solid #ffe082; padding-bottom:5px; margin-bottom:8px; font-size:14px;">👤 ${cardData.sender || '生徒'}</div>
+                                <div style="flex:1; overflow:hidden; font-size:14px; background:#fff9c4; border-radius:8px; border:1px solid #ffca28; padding:8px; position:relative;">${extractCardContent(cardData.html)}</div>
                                 <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
                                     <span style="font-size:11px; color:#aaa;">${new Date(cardData.timestamp).toLocaleTimeString()}</span>
-                                    <button class="btn-base" style="margin:0; padding:4px 12px; font-size:12px; background:${isLikedByMe ? '#e74c3c':'#fff'}; color:${isLikedByMe ? '#fff':'#e74c3c'}; border-color:#e74c3c;" 
-                                        onclick="toggleLike('${userId}', '${cardKey}', event)">
-                                        ${isLikedByMe ? '❤️' : '♡'} いいね！ (${likeCount})
-                                    </button>
+                                    <button class="btn-base" style="margin:0; padding:4px 12px; font-size:12px; background:${isLikedByMe ? '#e74c3c':'#fff'}; color:${isLikedByMe ? '#fff':'#e74c3c'}; border-color:#e74c3c;" onclick="toggleLike('${userId}', '${cardKey}', event)">${isLikedByMe ? '❤️' : '♡'} いいね！ (${likeCount})</button>
                                 </div>
                             `;
                             container.appendChild(wrapper);
                         });
                     });
                 }
-                if (!hasSubmissions) {
-                    container.innerHTML = '<p style="color:#888; font-size:16px; text-align:center; grid-column:1/-1; padding-top:40px;">📭 まだ誰も提出していません。</p>';
-                }
+                if (!hasSubmissions) container.innerHTML = '<p style="color:#888; font-size:16px; text-align:center; grid-column:1/-1; padding-top:40px;">📭 まだ誰も提出していません。</p>';
             });
         }
 
-        // 提出HTMLからテキスト・画像を安全に取り出す補助関数
         function extractCardContent(htmlStr) {
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(htmlStr, 'text/html');
-            const textarea = doc.querySelector('textarea');
-            const img = doc.querySelector('.card-image-box img');
-            let result = '';
-            if (img) {
-                result += `<div style="text-align:center; height:60px; margin-bottom:5px; background:#fafafa; border-radius:5px;"><img src="${img.src}" style="max-height:100%; max-width:100%; object-fit:contain;"></div>`;
-            }
-            if (textarea) {
-                result += `<div style="white-space:pre-wrap; word-break:break-all; height:calc(100% - 65px); overflow-y:auto;">${textarea.value || textarea.textContent || '(文字なし)'}</div>`;
-            } else {
-                result += `<div style="white-space:pre-wrap;">${doc.body.textContent || ''}</div>`;
-            }
-            return result;
+            const doc = new DOMParser().parseFromString(htmlStr, 'text/html'); const textarea = doc.querySelector('textarea'); const img = doc.querySelector('.card-image-box img'); let result = '';
+            if (img) result += `<div style="text-align:center; height:60px; margin-bottom:5px; background:#fafafa; border-radius:5px;"><img src="${img.src}" style="max-height:100%; max-width:100%; object-fit:contain;"></div>`;
+            if (textarea) result += `<div style="white-space:pre-wrap; word-break:break-all; height:calc(100% - 65px); overflow-y:auto;">${textarea.value || textarea.textContent || '(文字なし)'}</div>`; else result += `<div style="white-space:pre-wrap;">${doc.body.textContent || ''}</div>`; return result;
         }
 
-        // いいね！のON/OFF切り替え
-        function toggleLike(userId, cardKey, event) {
-            event.stopPropagation();
-            const likeRef = db.ref(`submissions/${currentLessonId}/${userId}/${cardKey}/likes/${currentUser.uid}`);
-            likeRef.once('value', snap => {
-                if (snap.exists()) { likeRef.remove(); } else { likeRef.set(true); }
-            });
-        }
+        function toggleLike(userId, cardKey, event) { event.stopPropagation(); const likeRef = db.ref(`submissions/${currentLessonId}/${userId}/${cardKey}/likes/${currentUser.uid}`); likeRef.once('value', snap => { if (snap.exists()) likeRef.remove(); else likeRef.set(true); }); }
 
         // ==========================================
-        // 🤏 指で拡大縮小 (ピンチ・ホイール)
+        // 🤏 8. ズーム・履歴・その他
         // ==========================================
-        let currentZoom = 1.0;
-        const boardContainer = document.getElementById('board-container');
-        const boardContent = document.getElementById('board-content');
-
-        function applyZoomFromDropdown() {
-            const val = document.getElementById('zoom-select').value;
-            if(val !== 'custom') { currentZoom = parseFloat(val); boardContent.style.transform = `scale(${currentZoom})`; drawLinks(); }
-        }
-        function syncZoomSelect() {
-            boardContent.style.transform = `scale(${currentZoom})`;
-            const select = document.getElementById('zoom-select');
-            const customOpt = document.getElementById('custom-zoom-option');
-            customOpt.text = `🔍 ${Math.round(currentZoom * 100)}%`; customOpt.value = "custom"; customOpt.style.display = 'block'; select.value = "custom";
-            drawLinks();
-        }
-
-        boardContainer.addEventListener('wheel', (e) => {
-            if (e.ctrlKey || e.metaKey) {
-                e.preventDefault(); currentZoom -= e.deltaY * 0.002; currentZoom = Math.min(Math.max(0.25, currentZoom), 3.0); syncZoomSelect();
-            }
-        }, {passive: false});
-
+        let currentZoom = 1.0; const boardContainer = document.getElementById('board-container'), boardContent = document.getElementById('board-content');
+        function applyZoomFromDropdown() { const val = document.getElementById('zoom-select').value; if(val !== 'custom') { currentZoom = parseFloat(val); boardContent.style.transform = `scale(${currentZoom})`; drawLinks(); } }
+        function syncZoomSelect() { boardContent.style.transform = `scale(${currentZoom})`; const select = document.getElementById('zoom-select'), customOpt = document.getElementById('custom-zoom-option'); customOpt.text = `🔍 ${Math.round(currentZoom * 100)}%`; customOpt.value = "custom"; customOpt.style.display = 'block'; select.value = "custom"; drawLinks(); }
+        boardContainer.addEventListener('wheel', (e) => { if (e.ctrlKey || e.metaKey) { e.preventDefault(); currentZoom -= e.deltaY * 0.002; currentZoom = Math.min(Math.max(0.25, currentZoom), 3.0); syncZoomSelect(); } }, {passive: false});
         let initialDist = null, startZoom = 1;
-        boardContainer.addEventListener('touchstart', (e) => {
-            if(e.touches.length === 2) { initialDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY); startZoom = currentZoom; }
-        }, {passive: false});
-        boardContainer.addEventListener('touchmove', (e) => {
-            if (e.touches.length === 2 && initialDist) {
-                e.preventDefault(); const scale = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY) / initialDist;
-                currentZoom = Math.min(Math.max(0.25, startZoom * scale), 3.0); syncZoomSelect();
-            }
-        }, {passive: false});
+        boardContainer.addEventListener('touchstart', (e) => { if(e.touches.length === 2) { initialDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY); startZoom = currentZoom; } }, {passive: false});
+        boardContainer.addEventListener('touchmove', (e) => { if (e.touches.length === 2 && initialDist) { e.preventDefault(); const scale = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY) / initialDist; currentZoom = Math.min(Math.max(0.25, startZoom * scale), 3.0); syncZoomSelect(); } }, {passive: false});
         boardContainer.addEventListener('touchend', () => { initialDist = null; });
 
-        // ==========================================
-        // ↩️ 戻る・進む（やり直す）履歴管理
-        // ==========================================
         let undoStack = [], redoStack = [];
         function saveHistory() {
-            undoStack.push({
-                html: document.getElementById('my-board').innerHTML,
-                links: JSON.stringify(cardLinks)
-            });
-            if(undoStack.length > 20) undoStack.shift(); redoStack = []; 
+            const boardHtml = document.getElementById('my-board').innerHTML; const linksData = JSON.stringify(cardLinks);
+            undoStack.push({ html: boardHtml, links: linksData }); if(undoStack.length > 20) undoStack.shift(); redoStack = []; 
+            if (currentLessonId && currentUser && !isMonitorWindow) { db.ref('users/' + currentUser.uid + '/notes/' + currentLessonId).update({ boardHtml: boardHtml, linksData: linksData, timestamp: Date.now() }); }
         }
-        function undoAction() {
-            if(undoStack.length > 1) { 
-                redoStack.push(undoStack.pop()); 
-                const state = undoStack[undoStack.length - 1];
-                document.getElementById('my-board').innerHTML = state.html; 
-                cardLinks = JSON.parse(state.links);
-                rebindCardEvents(); 
-            } else showToast("これ以上戻れません");
-        }
-        function redoAction() {
-            if(redoStack.length > 0) { 
-                const state = redoStack.pop(); 
-                undoStack.push(state); 
-                document.getElementById('my-board').innerHTML = state.html; 
-                cardLinks = JSON.parse(state.links);
-                rebindCardEvents(); 
-            } else showToast("やり直す操作がありません");
-        }
-        
+        function undoAction() { if(undoStack.length > 1) { redoStack.push(undoStack.pop()); const state = undoStack[undoStack.length - 1]; document.getElementById('my-board').innerHTML = state.html; cardLinks = JSON.parse(state.links); rebindCardEvents(); } else showToast("これ以上戻れません"); }
+        function redoAction() { if(redoStack.length > 0) { const state = redoStack.pop(); undoStack.push(state); document.getElementById('my-board').innerHTML = state.html; cardLinks = JSON.parse(state.links); rebindCardEvents(); } else showToast("やり直す操作がありません"); }
         function rebindCardEvents() {
             document.querySelectorAll('.card').forEach(card => {
-                const cardId = card.dataset.id || ('card_' + Date.now() + '_' + Math.floor(Math.random()*1000));
-                card.dataset.id = cardId;
-                
-                makeDraggable(card, card.querySelector('.card-header'));
-                makeDraggable(card.querySelector('.card-inner-item'), card.querySelector('.card-inner-item'));
-                
-                card.onclick = (e) => {
-                    e.stopPropagation();
-                    if (linkingSourceId) {
-                        if (linkingSourceId !== card.dataset.id) {
-                            const exists = cardLinks.some(l => l.from === linkingSourceId && l.to === card.dataset.id);
-                            if (!exists) {
-                                cardLinks.push({ from: linkingSourceId, to: card.dataset.id });
-                                drawLinks();
-                                showToast("🔗 カードを矢印でつなぎました！");
-                            }
-                            linkingSourceId = null;
-                            clearSelection();
-                            return;
-                        } else { linkingSourceId = null; }
-                    }
-                    clearSelection(e);
-                    card.classList.add('selected');
-                    selectedCard = card;
-                    card.style.zIndex = ++zIndexCounter;
-                };
-                
+                const cardId = card.dataset.id || ('card_' + Date.now() + '_' + Math.floor(Math.random()*1000)); card.dataset.id = cardId;
+                makeDraggable(card, card.querySelector('.card-header')); makeDraggable(card.querySelector('.card-inner-item'), card.querySelector('.card-inner-item'));
+                card.onclick = (e) => { e.stopPropagation(); if (linkingSourceId) { if (linkingSourceId !== card.dataset.id && !cardLinks.some(l => l.from === linkingSourceId && l.to === card.dataset.id)) { cardLinks.push({ from: linkingSourceId, to: card.dataset.id }); drawLinks(); showToast("🔗 つなぎました！"); } linkingSourceId = null; clearSelection(); return; } clearSelection(e); card.classList.add('selected'); selectedCard = card; card.style.zIndex = ++zIndexCounter; };
                 card.ondblclick = (e) => { e.stopPropagation(); clearSelection(); card.classList.add('active-edit'); card.style.zIndex = ++zIndexCounter; };
-                
-                // 動的バインドの再接続
-                const linkBtn = card.querySelector('.c-tool-btn[title="つなぐ"]');
-                if (linkBtn) linkBtn.onclick = (event) => startLinking(cardId, event);
-                const imgBtn = card.querySelector('.c-tool-btn[title="画像を追加"]');
-                if (imgBtn) imgBtn.onclick = (event) => triggerCardImage(imgBtn, event);
-                const imgInput = card.querySelector('input[type="file"]');
-                if (imgInput) imgInput.onchange = (event) => loadCardImage(imgInput, event);
-                const penBtn = card.querySelector('.c-tool-btn[title="ペン"]');
-                if (penBtn) penBtn.onclick = (event) => toggleCardPen(penBtn, event);
-                const colorBtn = card.querySelector('.c-tool-btn[title="色"]');
-                if (colorBtn) colorBtn.onclick = (event) => changeCardColor(colorBtn, event);
-                const delBtn = card.querySelector('.c-tool-btn[title="削除"]');
-                if (delBtn) delBtn.onclick = (event) => deleteCard(cardId, delBtn, event);
-                const closeX = card.querySelector('.card-header span');
-                if (closeX) closeX.onclick = (event) => deleteCard(cardId, closeX, event);
-                
-                // textareaの入力値を同期
-                const ta = card.querySelector('textarea');
-                if(ta) ta.value = ta.textContent;
-            });
-            drawLinks();
+                const linkBtn = card.querySelector('.c-tool-btn[title="つなぐ"]'); if (linkBtn) linkBtn.onclick = (event) => startLinking(cardId, event);
+                const imgBtn = card.querySelector('.c-tool-btn[title="画像を追加"]'); if (imgBtn) imgBtn.onclick = (event) => triggerCardImage(imgBtn, event);
+                const imgInput = card.querySelector('input[type="file"]'); if (imgInput) imgInput.onchange = (event) => loadCardImage(imgInput, event);
+                const penBtn = card.querySelector('.c-tool-btn[title="ペン"]'); if (penBtn) penBtn.onclick = (event) => toggleCardPen(penBtn, event);
+                const colorBtn = card.querySelector('.c-tool-btn[title="色"]'); if (colorBtn) colorBtn.onclick = (event) => changeCardColor(colorBtn, event);
+                const delBtn = card.querySelector('.c-tool-btn[title="削除"]'); if (delBtn) delBtn.onclick = (event) => deleteCard(cardId, delBtn, event);
+                const closeX = card.querySelector('.card-header span'); if (closeX) closeX.onclick = (event) => deleteCard(cardId, closeX, event);
+                const ta = card.querySelector('textarea'); if(ta) ta.value = ta.textContent;
+            }); drawLinks();
         }
 
-        // ==========================================
-        // 📄 PDF取込とペン機能
-        // ==========================================
         function importPDF(event) { if(event.target.files.length > 0) { showToast("📄 PDFを取り込みました"); addCard(); event.target.value = ''; } }
         const canvas = document.getElementById('drawing-layer'); const ctx = canvas.getContext('2d'); let isDrawing = false;
         function togglePen() { isPenMode = !isPenMode; canvas.style.pointerEvents = isPenMode ? 'auto' : 'none'; if(isPenMode) showToast("🖋 ペンモード ON (カードには書けません)"); }
         function getMousePos(e) { const r = canvas.getBoundingClientRect(); const cx = e.touches ? e.touches[0].clientX : e.clientX; const cy = e.touches ? e.touches[0].clientY : e.clientY; return { x: (cx - r.left) / currentZoom, y: (cy - r.top) / currentZoom }; }
         canvas.addEventListener('mousedown', e => { if(!isPenMode) return; isDrawing = true; ctx.beginPath(); ctx.moveTo(getMousePos(e).x, getMousePos(e).y); e.preventDefault();});
         canvas.addEventListener('mousemove', e => { if(!isDrawing || !isPenMode) return; const p = getMousePos(e); ctx.lineWidth=5; ctx.lineCap='round'; ctx.strokeStyle='#e74c3c'; ctx.lineTo(p.x, p.y); ctx.stroke(); e.preventDefault();});
-        canvas.addEventListener('mouseup', () => { isDrawing = false; });
+        canvas.addEventListener('mouseup', () => { isDrawing = false; saveHistory(); });
 
-        // ==========================================
-        // 🍀 モーダル・通信・その他補助
-        // ==========================================
-        function openCreateModal() { document.getElementById('create-modal').style.display = 'flex'; }
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-        function selectAllStudents() { const items = document.querySelectorAll('#student-check-list .student-item'); const all = Array.from(items).every(i => i.classList.contains('selected')); items.forEach(i => all ? i.classList.remove('selected') : i.classList.add('selected')); }
-        function submitNewLesson() {
-            const name = document.getElementById('input-lesson-name').value; if(!name) return alert('授業名を入力してください');
-            const items = document.querySelectorAll('#student-check-list .student-item.selected'); if(items.length === 0) return alert('生徒を選んでください');
-            let assignedTo = {}; items.forEach(i => assignedTo[i.getAttribute('data-uid')] = true);
-            db.ref('lessons').push().set({ name: name, assignedTo: assignedTo, createdAt: Date.now() }).then(() => { closeModal('create-modal'); showToast("✨ 授業を配布しました！"); document.getElementById('input-lesson-name').value = ''; });
-        }
-        
-        function toggleBoard() {
-            document.getElementById('my-board').classList.toggle('active');
-            document.getElementById('minna-board').classList.toggle('active');
-            if (isTeacher) {
-                document.getElementById('teacher-quick-menu').style.display = document.getElementById('minna-board').classList.contains('active') ? 'block' : 'none';
-            }
-        }
-        
-        function clearPublicBoard() {
-            if(confirm("本当にみんなのボードを真っ白にしますか？")) {
-                document.getElementById('minna-board').innerHTML = '<h2 style="position:absolute; top:10px; left:20px; color:#ccc;">🌐 みんなのボード</h2>';
-                showToast("🗑️ みんなのボードをリセットしました");
-            }
-        }
-
+        function toggleBoard() { document.getElementById('my-board').classList.toggle('active'); document.getElementById('minna-board').classList.toggle('active'); if (isTeacher) document.getElementById('teacher-quick-menu').style.display = document.getElementById('minna-board').classList.contains('active') ? 'block' : 'none'; }
+        function clearPublicBoard() { if(confirm("本当にみんなのボードを真っ白にしますか？")) { document.getElementById('minna-board').innerHTML = '<h2 style="position:absolute; top:10px; left:20px; color:#ccc;">🌐 みんなのボード</h2>'; showToast("🗑️ リセットしました"); } }
         function showToast(text) { const toast = document.getElementById('toast-notification'); toast.innerText = text; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 3000); }
-        
-        function startScreenCaptureLoop() {
-            screenCaptureInterval = setInterval(() => {
-                if (currentLessonId && !document.hidden) {
-                    html2canvas(document.getElementById('board-content'), { scale: 0.2 }).then(canvas => { db.ref('monitor_screens/' + currentUser.uid).set({ name: currentUser.displayName, image: canvas.toDataURL('image/jpeg', 0.4), timestamp: Date.now() }); });
-                }
-            }, 3000);
-        }
-        
-        function openLiveMonitor() {
-            document.getElementById('live-monitor-modal').style.display = 'flex';
-            db.ref('students').once('value').then(snap => {
-                const grid = document.getElementById('monitor-grid'); grid.innerHTML = ''; let studentList = [];
-                snap.forEach(s => {
-                    const studentData = s.val(); const sEmail = studentData.email ? studentData.email.toLowerCase() : "";
-                    if (sEmail !== TEACHER_EMAIL.toLowerCase()) {
-                        studentList.push({uid: s.key, name: studentData.name});
-                        grid.innerHTML += `<div class="monitor-card" id="monitor-${s.key}"><div class="offline-text">モニタリング外</div><img src="" id="img-${s.key}"><p class="monitor-name">👤 ${studentData.name}</p></div>`;
-                    }
-                });
-                db.ref('monitor_screens').on('value', monitorSnap => {
-                    studentList.forEach(student => {
-                        const data = monitorSnap.child(student.uid).val(); const card = document.getElementById('monitor-' + student.uid);
-                        if(card) {
-                            const img = document.getElementById('img-' + student.uid); const offlineText = card.querySelector('.offline-text');
-                            if (data && (Date.now() - data.timestamp < 7000)) { offlineText.style.display = 'none'; img.src = data.image; } else { offlineText.style.display = 'flex'; img.src = ''; }
-                        }
-                    });
-                });
-            });
-        }
     </script>
 </body>
 </html>
