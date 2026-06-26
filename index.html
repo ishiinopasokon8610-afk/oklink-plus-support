@@ -100,7 +100,7 @@
             <div style="display:flex; align-items:center; gap:10px;">
                 <div id="teacher-controls-home" style="display:none; gap:10px; margin-right:15px;">
                     <button class="btn-base" style="background:#f39c12; color:white; border-color:#f39c12;" onclick="toggleScreenShare()">🖥️ 先生の画面共有</button>
-                    <button class="btn-base" style="background:#9b59b6; color:white; border-color:#9b59b6;" onclick="openLiveMonitorWindow()">👀 LIVEモニタニング</button>
+                    <button class="btn-base" style="background:#9b59b6; color:white; border-color:#9b59b6;" onclick="openLiveMonitorWindow()">👀 LIVEモニタリング</button>
                 </div>
                 <div id="user-info-dash" style="font-weight:bold; color: #d35400;">👤 通信中...</div>
             </div>
@@ -133,14 +133,13 @@
             <div style="display:flex; align-items:center; gap:10px;">
                 <div id="teacher-controls-app" style="display:none; gap:10px; margin-right:15px;">
                     <button class="btn-base" style="background:#f39c12; color:white; border-color:#f39c12;" onclick="toggleScreenShare()">🖥️ 先生の画面共有</button>
-                    <button class="btn-base" style="background:#9b59b6; color:white; border-color:#9b59b6;" onclick="openLiveMonitorWindow()">👀 LIVEモニタニング</button>
+                    <button class="btn-base" style="background:#9b59b6; color:white; border-color:#9b59b6;" onclick="openLiveMonitorWindow()">👀 LIVEモニタリング</button>
                 </div>
                 <button class="btn-base" style="background:#e74c3c; color:white; border-color:#e74c3c;" onclick="exitLesson()">🔙 ホームに戻る</button>
             </div>
         </div>
 
         <div class="board-container" id="board-container" onclick="clearSelection(event)">
-            
             <div id="teacher-quick-menu" class="quick-menu">
                 <span style="font-size:12px;">先生用クイックメニュー</span><br>
                 <button onclick="clearPublicBoard()" style="margin-top:5px;">🗑️ 全員のボードをリセット</button>
@@ -170,10 +169,8 @@
             </select>
             
             <div style="width: 2px; height: 30px; background: #ffe082; margin: 0 5px;"></div>
-            
             <button class="pdf-btn" onclick="document.getElementById('pdf-input').click()">📄 PDF取込</button>
             <input type="file" id="pdf-input" accept="application/pdf" style="display:none" onchange="importPDF(event)">
-            
             <button class="main-add-btn" onclick="addCard()">➕ カードを作成</button>
         </div>
 
@@ -218,7 +215,6 @@
         };
         const TEACHER_EMAIL = "ishiinopasokon8610@gmail.com"; 
 
-        // URLパラメータを見て「LIVEモニタリング用ウィンドウ」か判定
         const isMonitorWindow = new URLSearchParams(window.location.search).get('monitor') === 'true';
 
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
@@ -228,12 +224,11 @@
         let currentUser = null;
         let isTeacher = false;
         let currentLessonId = null;
-        let screenCaptureInterval = null;
+        let captureTimeout = null; // フリーズ防止用の安全なループ用
         let selectedCard = null; 
         let cardLinks = []; 
         let linkingSourceId = null; 
 
-        // 別ウィンドウ起動時のUI制御
         if (isMonitorWindow) {
             window.onload = () => {
                 document.getElementById('home-screen').style.display = 'none';
@@ -252,18 +247,14 @@
                 const userEmail = user.email ? user.email.toLowerCase() : "";
                 isTeacher = (userEmail === TEACHER_EMAIL.toLowerCase());
                 
-                // モニター用ウィンドウの場合はすぐさま監視処理を開始して終了
                 if (isMonitorWindow) {
                     initLiveMonitorData();
                     return;
                 }
                 
                 document.getElementById('user-info-dash').innerText = isTeacher ? `👨‍🏫 先生 (${user.displayName || 'ゲスト'})` : `👤 生徒 (${user.displayName || 'ゲスト'})`;
-                
-                // 📝 ログイン即時名簿登録
                 db.ref('students/' + user.uid).update({ name: user.displayName || '生徒', email: userEmail, lastLogin: Date.now() });
 
-                // 先生限定ボタンの表示
                 if (isTeacher) {
                     document.getElementById('teacher-controls-home').style.display = 'flex';
                     document.getElementById('teacher-controls-app').style.display = 'flex';
@@ -302,23 +293,32 @@
             });
         }
 
+        // 🚀 【重要】通信を待たずに即座に画面を開く（ホワイトボードが出ない問題の解決）
         function createNewFreeNote() {
-            if(!currentUser) return;
+            if(!currentUser) {
+                alert("ログインを確認しています。もう一度押してください。");
+                return;
+            }
             const newNoteRef = db.ref('users/' + currentUser.uid + '/notes').push();
+            const noteId = newNoteRef.key;
+            
+            // UIを瞬時に切り替え
+            enterLesson(noteId, '📓 自由ノート', 'free');
+
+            // 裏側でデータベースに保存
             newNoteRef.set({
                 title: "自由ノート",
                 timestamp: Date.now(),
                 boardHtml: "",
                 linksData: "[]"
-            }).then(() => {
-                enterLesson(newNoteRef.key, '📓 自由ノート', 'free');
-            });
+            }).catch(e => console.error("ノートの保存に失敗:", e));
         }
 
         function enterLesson(id, name, type) {
             currentLessonId = id;
             cardLinks = [];
             linkingSourceId = null;
+            
             document.getElementById('home-screen').style.display = 'none';
             const appScreen = document.getElementById('app-screen');
             appScreen.style.display = 'flex';
@@ -326,29 +326,34 @@
             
             document.getElementById('current-lesson-title').innerText = name;
             
-            // Firebaseからノートの続きを読み込む
+            // 必ずホワイトボードの枠組みを用意して強制表示する
+            document.getElementById('my-board').innerHTML = '<h2 style="position:absolute; top:10px; left:20px; color:#ccc;">✏️ マイボード</h2>';
+            document.getElementById('minna-board').innerHTML = '<h2 style="position:absolute; top:10px; left:20px; color:#ccc;">🌐 みんなのボード</h2>';
+            document.getElementById('drawing-layer').getContext('2d').clearRect(0,0,3000,3000);
+            
+            // 既存のデータを取得（失敗してもエラーにならないようcatchを入れる）
             db.ref('users/' + currentUser.uid + '/notes/' + id).once('value').then(snap => {
                 if (snap.exists() && snap.val().boardHtml) {
                     document.getElementById('my-board').innerHTML = snap.val().boardHtml;
                     cardLinks = JSON.parse(snap.val().linksData || '[]');
-                } else {
-                    document.getElementById('my-board').innerHTML = '<h2 style="position:absolute; top:10px; left:20px; color:#ccc;">✏️ マイボード</h2>';
                 }
-                
-                document.getElementById('minna-board').innerHTML = '<h2 style="position:absolute; top:10px; left:20px; color:#ccc;">🌐 みんなのボード</h2>';
-                document.getElementById('drawing-layer').getContext('2d').clearRect(0,0,3000,3000);
-                
                 rebindCardEvents(); 
                 drawLinks();
                 saveHistory(); 
-                
+                if (!isTeacher) startScreenCaptureLoop();
+            }).catch(err => {
+                console.error("データの読み込みエラー:", err);
+                // エラー時でも操作を継続できるようにする
+                rebindCardEvents(); 
+                drawLinks();
+                saveHistory(); 
                 if (!isTeacher) startScreenCaptureLoop();
             });
         }
 
         function exitLesson() {
             currentLessonId = null;
-            clearInterval(screenCaptureInterval);
+            if(captureTimeout) clearTimeout(captureTimeout);
             document.getElementById('app-screen').style.display = 'none';
             document.getElementById('home-screen').style.display = 'flex';
         }
@@ -371,7 +376,13 @@
                     const sEmail = studentData.email ? studentData.email.toLowerCase() : "";
                     if (sEmail !== TEACHER_EMAIL.toLowerCase()) {
                         studentList.push({uid: s.key, name: studentData.name});
-                        grid.innerHTML += `<div class="monitor-card" id="monitor-${s.key}"><div class="offline-text">モニタニング外</div><img src="" id="img-${s.key}"><p class="monitor-name">👤 ${studentData.name}</p></div>`;
+                        grid.innerHTML += `
+                            <div class="monitor-card" id="monitor-${s.key}">
+                                <div class="offline-text" id="status-${s.key}">通信待機中</div>
+                                <img src="" id="img-${s.key}">
+                                <p class="monitor-name">👤 ${studentData.name}</p>
+                            </div>
+                        `;
                     }
                 });
 
@@ -381,14 +392,30 @@
                         const card = document.getElementById('monitor-' + student.uid);
                         if(card) {
                             const img = document.getElementById('img-' + student.uid); 
-                            const offlineText = card.querySelector('.offline-text');
+                            const offlineText = document.getElementById('status-' + student.uid);
                             
-                            // 更新が6秒以内、かつ非表示(hidden)でない場合のみアクティブ
-                            if (data && (Date.now() - data.timestamp < 6000) && data.status !== 'hidden') { 
-                                offlineText.style.display = 'none'; 
-                                img.src = data.image; 
+                            // 更新が10秒以内の場合
+                            if (data && (Date.now() - data.timestamp < 10000)) { 
+                                if (data.status === 'hidden') {
+                                    offlineText.style.display = 'flex'; 
+                                    offlineText.innerText = '別タブ閲覧中';
+                                    offlineText.style.color = '#f39c12';
+                                    img.src = '';
+                                } else {
+                                    offlineText.style.display = 'none'; 
+                                    if(data.image) {
+                                        img.src = data.image; 
+                                    } else {
+                                        img.src = '';
+                                        offlineText.style.display = 'flex';
+                                        offlineText.innerText = '処理中...';
+                                        offlineText.style.color = '#fff';
+                                    }
+                                }
                             } else { 
                                 offlineText.style.display = 'flex'; 
+                                offlineText.innerText = 'モニタリング外';
+                                offlineText.style.color = '#e74c3c';
                                 img.src = ''; 
                             }
                         }
@@ -397,50 +424,68 @@
             });
         }
 
+        // 🚀 【重要】フリーズを防止する「安全な再帰ループ処理」に変更
+        function captureScreen() {
+            if (!currentLessonId) return;
+            
+            if (!document.hidden) {
+                // useCORS: true で外部画像によるセキュリティエラーを回避
+                html2canvas(document.getElementById('board-content'), { scale: 0.2, useCORS: true, logging: false }).then(canvas => {
+                    db.ref('monitor_screens/' + currentUser.uid).update({
+                        name: currentUser.displayName,
+                        image: canvas.toDataURL('image/jpeg', 0.4),
+                        timestamp: Date.now(),
+                        status: 'active'
+                    });
+                    captureTimeout = setTimeout(captureScreen, 2000); // 処理が完了してから次をセット
+                }).catch(err => {
+                    db.ref('monitor_screens/' + currentUser.uid).update({ timestamp: Date.now(), status: 'active', error: true });
+                    captureTimeout = setTimeout(captureScreen, 2000);
+                });
+            } else {
+                // 別のタブを見ているときは status: 'hidden' を送信
+                db.ref('monitor_screens/' + currentUser.uid).update({ 
+                    timestamp: Date.now(),
+                    status: 'hidden'
+                });
+                captureTimeout = setTimeout(captureScreen, 2000);
+            }
+        }
+
         function startScreenCaptureLoop() {
-            if (screenCaptureInterval) clearInterval(screenCaptureInterval);
-            screenCaptureInterval = setInterval(() => {
-                if (currentLessonId) {
-                    if (!document.hidden) {
-                        html2canvas(document.getElementById('board-content'), { scale: 0.2 }).then(canvas => { 
-                            db.ref('monitor_screens/' + currentUser.uid).set({ 
-                                name: currentUser.displayName, 
-                                image: canvas.toDataURL('image/jpeg', 0.4), 
-                                timestamp: Date.now(),
-                                status: 'active'
-                            }); 
-                        });
-                    } else {
-                        // 別のタブを見ているときは status: 'hidden' を送信
-                        db.ref('monitor_screens/' + currentUser.uid).update({ 
-                            timestamp: Date.now(),
-                            status: 'hidden'
-                        });
-                    }
-                }
-            }, 2000); // 2秒ごとに更新
+            if(captureTimeout) clearTimeout(captureTimeout);
+            captureScreen();
         }
 
         // ==========================================
-        // 🖥️ 5. 先生の画面共有（簡易版）
+        // 🖥️ 5. 先生の画面共有（安全ループ版）
         // ==========================================
         let isSharing = false;
-        let shareInterval;
+        let shareTimeout;
+        
+        function shareScreenLoop() {
+            if(!isSharing) return;
+            if(!document.hidden) {
+                html2canvas(document.getElementById('app-screen'), { scale: 0.3, useCORS: true, logging: false }).then(canvas => {
+                    db.ref('shared_screen/teacher').set({
+                        image: canvas.toDataURL('image/jpeg', 0.5), timestamp: Date.now()
+                    });
+                    shareTimeout = setTimeout(shareScreenLoop, 2000);
+                }).catch(e => {
+                    shareTimeout = setTimeout(shareScreenLoop, 2000);
+                });
+            } else {
+                shareTimeout = setTimeout(shareScreenLoop, 2000);
+            }
+        }
+
         function toggleScreenShare() {
             isSharing = !isSharing;
             if(isSharing) {
                 showToast("🖥️ 画面共有を開始しました（送信中...）");
-                shareInterval = setInterval(() => {
-                    if(!document.hidden) {
-                        html2canvas(document.getElementById('app-screen'), { scale: 0.3 }).then(canvas => {
-                            db.ref('shared_screen/teacher').set({
-                                image: canvas.toDataURL('image/jpeg', 0.5), timestamp: Date.now()
-                            });
-                        });
-                    }
-                }, 2000);
+                shareScreenLoop();
             } else {
-                clearInterval(shareInterval);
+                clearTimeout(shareTimeout);
                 db.ref('shared_screen/teacher').remove();
                 showToast("🖥️ 画面共有を終了しました");
             }
