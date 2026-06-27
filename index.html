@@ -212,14 +212,14 @@
                 
                 <div id="minna-board" class="board-area">
                     <h2 style="position:absolute; top:15px; left:25px; color:#bdc3c7; font-size:28px; pointer-events:none;">🌐 みんなのボード (リアルタイム同期中)</h2>
-                    <button id="btn-reset-public" style="display:none; position:absolute; top:20px; right:20px; background:var(--danger-color); color:white; border:none; padding:10px; border-radius:10px; font-weight:bold; cursor:pointer;" onclick="clearPublicBoard()">🗑️ ボードをリセット</button>
+                    <button id="btn-reset-public" style="display:none; position:absolute; top:20px; right:20px; background:#e74c3c; color:white; border:none; padding:15px 25px; border-radius:12px; font-weight:bold; font-size:18px; cursor:pointer; z-index:1000; box-shadow:0 4px 6px rgba(0,0,0,0.2);" onclick="clearPublicBoard()">🗑️ ボードをリセット</button>
                 </div>
             </div>
         </div>
 
         <div class="bottom-toolbar">
-            <button class="action-btn" title="戻る" onclick="undoAction()">↩️</button>
-            <button class="action-btn" title="やり直す" onclick="redoAction()">↪️</button>
+            <button class="action-btn" title="戻る (Ctrl+Z)" onclick="undoAction()">↩️</button>
+            <button class="action-btn" title="やり直す (Ctrl+Y)" onclick="redoAction()">↪️</button>
             
             <div style="width: 2px; height: 30px; background: var(--card-border); margin: 0 10px;"></div>
             
@@ -301,6 +301,14 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <script>
+        // ==========================================
+        // Firebase初期化とキーボードショートカット (Ctrl+Z / Ctrl+Y)
+        // ==========================================
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key.toLowerCase() === 'z') { e.preventDefault(); undoAction(); }
+            else if (e.ctrlKey && e.key.toLowerCase() === 'y') { e.preventDefault(); redoAction(); }
+        });
+
         const firebaseConfig = { apiKey: "AIzaSyB7jGlKT6LKGxIqWdJrvxuT8Fj6oJ3U_5A", authDomain: "oklink-plus-support.firebaseapp.com", databaseURL: "https://oklink-plus-support-default-rtdb.firebaseio.com", projectId: "oklink-plus-support" };
         const TEACHER_EMAIL = "ishiinopasokon8610@gmail.com"; 
 
@@ -362,7 +370,8 @@
             // 初期のキャンバス位置と内容をリセット
             UI.myBoard.innerHTML = '<canvas id="my-drawing-layer" width="5000" height="5000" style="position:absolute; top:0; left:0; z-index:5; pointer-events:none;"></canvas><h2 style="position:absolute; top:15px; left:25px; color:#bdc3c7; font-size:28px; pointer-events:none;">✏️ マイボード</h2>';
             UI.minnaBoard.innerHTML = '<h2 style="position:absolute; top:15px; left:25px; color:#bdc3c7; font-size:28px; pointer-events:none;">🌐 みんなのボード</h2>';
-            if(STATE.isTeacher) UI.minnaBoard.innerHTML += `<button id="btn-reset-public" style="position:absolute; top:20px; right:20px; background:var(--danger-color); color:white; border:none; padding:10px; border-radius:10px; font-weight:bold; cursor:pointer; z-index:1000;" onclick="clearPublicBoard()">🗑️ ボードをリセット</button>`;
+            // ここも巨大化ボタンに変更
+            if(STATE.isTeacher) UI.minnaBoard.innerHTML += `<button id="btn-reset-public" style="position:absolute; top:20px; right:20px; background:#e74c3c; color:white; border:none; padding:15px 25px; border-radius:12px; font-weight:bold; font-size:18px; cursor:pointer; z-index:1000; box-shadow:0 4px 6px rgba(0,0,0,0.2);" onclick="clearPublicBoard()">🗑️ ボードをリセット</button>`;
             
             UI.drawCanvas = document.getElementById('my-drawing-layer');
             ctxDraw.clearRect(0,0,5000,5000); ctxLink.clearRect(0,0,5000,5000);
@@ -393,6 +402,7 @@
         // 保存ボタン（Googleアカウント保存）
         function forceSaveData() {
             saveHistory();
+            loadAllNotes(); // 保存後に確実にリストを更新させる
             showToast("💾 保存しました");
         }
 
@@ -420,11 +430,12 @@
         function clearPublicBoard() { if(confirm("⚠️ 本当に「みんなのボード」を真っ白にしますか？")) { db.ref('public_boards/' + STATE.currentLessonId).remove().then(() => showToast("🗑️ みんなのボードをリセットしました")); } }
 
         // ==========================================
-        // 左上アイコンからのクイック作成
+        // 左上アイコンからのクイック作成 (https自動補完)
         // ==========================================
         function quickAddLinkCard() {
-            const url = prompt("リンクURLを入力 (http://...)");
+            let url = prompt("リンクURLを入力 (http://...)");
             if(url) {
+                if (!url.startsWith('http://') && !url.startsWith('https://')) { url = 'https://' + url; }
                 const title = prompt("リンクの表示名") || "リンクを開く";
                 const card = createCardBase();
                 const btn = document.createElement('a'); btn.href = url; btn.target = "_blank"; btn.className = "card-inner-link-btn"; btn.innerText = "🌐 " + title;
@@ -579,10 +590,11 @@
         editorCanvas.addEventListener('mousedown', e => { if(!isEditorPenMode) return; isEditorDrawing = true; eCtx.beginPath(); eCtx.moveTo(getEditorMousePos(e).x, getEditorMousePos(e).y); e.preventDefault();}); editorCanvas.addEventListener('mousemove', drawEditor); editorCanvas.addEventListener('mouseup', () => isEditorDrawing = false);
         editorCanvas.addEventListener('touchstart', e => { if(!isEditorPenMode) return; isEditorDrawing = true; eCtx.beginPath(); eCtx.moveTo(getEditorMousePos(e).x, getEditorMousePos(e).y); e.preventDefault();}, {passive:false}); editorCanvas.addEventListener('touchmove', drawEditor, {passive:false}); editorCanvas.addEventListener('touchend', () => isEditorDrawing = false);
 
-        // リンクボタンの挿入
+        // リンクボタンの挿入(https自動補完)
         function insertLinkToEditor() { 
-            const url = prompt("リンクURLを入力 (http://...)"); 
+            let url = prompt("リンクURLを入力 (http://...)"); 
             if(url) { 
+                if (!url.startsWith('http://') && !url.startsWith('https://')) { url = 'https://' + url; }
                 const title = prompt("リンクの表示名") || "リンクを開く";
                 const btn = document.createElement('a'); btn.href = url; btn.target = "_blank"; btn.className = "card-inner-link-btn"; btn.innerText = "🌐 " + title;
                 btn.onmousedown = (e) => e.stopPropagation(); btn.ontouchstart = (e) => e.stopPropagation();
@@ -593,10 +605,10 @@
         function changeEditorColor() { const mega = document.getElementById('editor-mega-card'); const colors = ['var(--card-bg)', '#ffcdd2', '#c8e6c9', '#bbdefb', '#ffffff']; mega.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)]; }
 
         // ==========================================
-        // 📤 提出ボックス & みんなのボード
+        // 📤 提出ボックス & みんなのボード (トースト通知へ変更)
         // ==========================================
         function submitSelectedCards() {
-            if (STATE.selectedCards.size === 0) return alert("提出するカードを選択してください！");
+            if (STATE.selectedCards.size === 0) { showToast("⚠️ 提出するカードをタップして選択してください！"); return; }
             let finalSet = new Set(); STATE.selectedCards.forEach(c => { getConnectedCards(c).forEach(cc => finalSet.add(cc)); });
             let submissionHtml = "";
             finalSet.forEach(card => {
@@ -606,7 +618,7 @@
             db.ref('submissions/' + STATE.currentLessonId + '/' + STATE.user.uid).push({ sender: STATE.user.displayName, html: submissionHtml, timestamp: Date.now() }).then(() => { showToast(`📥 ${finalSet.size}枚のカードを提出しました！`); clearSelection(); });
         }
         function sendSelectedCardsToPublic() {
-            if (STATE.selectedCards.size === 0) return alert("共有するカードを選択してください！");
+            if (STATE.selectedCards.size === 0) { showToast("⚠️ 共有するカードをタップして選択してください！"); return; }
             let finalSet = new Set(); STATE.selectedCards.forEach(c => { getConnectedCards(c).forEach(cc => finalSet.add(cc)); });
             let syncPromises = [];
             finalSet.forEach(card => {
@@ -636,7 +648,20 @@
         function undoAction() { if(undoStack.length > 1) { redoStack.push(undoStack.pop()); const state = undoStack[undoStack.length - 1]; UI.myBoard.innerHTML = state.html; STATE.cardLinks = JSON.parse(state.links); rebindAllEvents(); UI.drawCanvas = document.getElementById('my-drawing-layer'); } else showToast("これ以上戻れません"); }
         function redoAction() { if(redoStack.length > 0) { const state = redoStack.pop(); undoStack.push(state); UI.myBoard.innerHTML = state.html; STATE.cardLinks = JSON.parse(state.links); rebindAllEvents(); UI.drawCanvas = document.getElementById('my-drawing-layer'); } else showToast("やり直す操作がありません"); }
         function rebindAllEvents() { STATE.selectedCards.clear(); document.querySelectorAll('.card').forEach(card => { bindCardEvents(card); }); drawLinks(); }
-        function toggleBoard() { UI.myBoard.classList.toggle('active'); UI.minnaBoard.classList.toggle('active'); if (STATE.isTeacher) { document.getElementById('teacher-quick-menu').style.display = UI.minnaBoard.classList.contains('active') ? 'block' : 'none'; } }
+        
+        // マイボード・みんなのボード切り替え(通知付き)
+        function toggleBoard() { 
+            UI.myBoard.classList.toggle('active'); 
+            UI.minnaBoard.classList.toggle('active'); 
+            const isMinna = UI.minnaBoard.classList.contains('active');
+            if (isMinna) {
+                showToast("🌐 みんなのボードに移動しました！");
+            } else {
+                showToast("🏠 マイボードに移動しました！");
+            }
+            if (STATE.isTeacher) { document.getElementById('teacher-quick-menu').style.display = isMinna ? 'block' : 'none'; } 
+        }
+        
         function showToast(text) { const toast = document.getElementById('toast-notification'); toast.innerText = text; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 3000); }
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
