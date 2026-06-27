@@ -3,112 +3,779 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>オクリンクトリプルプラス</title>
+    <title>オクリンクトリプルプラス - Pro Edition</title>
     <link rel="icon" href="oklink.jpg">
     <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
     <style>
-        /* ==========================================
-           🎨 全体・共通デザイン
-           ========================================== */
-        body { font-family: 'Zen Maru Gothic', sans-serif; background: #fffdf2; margin: 0; color: #5a4b3c; overflow: hidden; height: 100vh; touch-action: none;}
+        /* ==========================================================================
+           1. CSS 変数と基本リセット (Variables & Reset)
+           ========================================================================== */
+        :root {
+            --primary-color: #ffca28;
+            --primary-dark: #f39c12;
+            --secondary-color: #3498db;
+            --danger-color: #e74c3c;
+            --success-color: #2ecc71;
+            --info-color: #00bcd4;
+            --bg-color: #fffdf2;
+            --text-color: #5a4b3c;
+            --card-bg: #fff9c4;
+            --card-border: #ffe082;
+            --board-bg: #fdfdfd;
+            --modal-bg: rgba(0, 0, 0, 0.7);
+            --font-family: 'Zen Maru Gothic', sans-serif;
+            --z-index-base: 10;
+            --z-index-modal: 5000;
+            --z-index-fullscreen: 9999;
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background: var(--bg-color);
+            margin: 0;
+            color: var(--text-color);
+            overflow: hidden;
+            height: 100vh;
+            touch-action: none; /* スマホでのブラウザデフォルトのスクロールを無効化 */
+            user-select: none;  /* テキストの予期せぬ選択を防止 */
+        }
+
+        /* 汎用ボタンスタイル */
+        .btn-base {
+            background: #fff;
+            color: var(--primary-color);
+            border: 2px solid #fff;
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            font-family: var(--font-family);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+        .btn-base:hover {
+            background: #fff8e1;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        .btn-base:active {
+            transform: translateY(0);
+        }
+
+        /* ==========================================================================
+           2. ヘッダー共通デザイン (Header UI)
+           ========================================================================== */
+        .header {
+            background: var(--primary-color);
+            color: var(--text-color);
+            padding: 12px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(255, 202, 40, 0.4);
+            z-index: 1000;
+            position: relative;
+            height: 60px;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 700;
+        }
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            border: 2px solid white;
+            object-fit: cover;
+        }
+
+        /* ==========================================================================
+           3. ホーム画面 (Dashboard / Home Screen)
+           ========================================================================== */
+        #home-screen {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            background: var(--board-bg);
+            background-image: radial-gradient(var(--card-border) 2px, transparent 2px);
+            background-size: 30px 30px;
+            position: absolute;
+            width: 100%;
+            top: 0;
+            left: 0;
+            z-index: 100;
+        }
+        .home-content {
+            padding: 40px;
+            overflow-y: auto;
+            flex: 1;
+        }
+        .home-controls {
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid var(--primary-color);
+            padding-bottom: 10px;
+        }
         
-        .header { background: #ffca28; color: #5a4b3c; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 10px rgba(255, 202, 40, 0.3); z-index: 1000; position: relative;}
-        .header h1 { margin: 0; font-size: 22px; display: flex; align-items: center; gap: 10px; font-weight: 700; }
-        .logo-icon { width: 36px; height: 36px; border-radius: 10px; border: 2px solid white;}
-        .btn-base { background: #fff; color: #ffca28; border: 2px solid #fff; padding: 6px 15px; border-radius: 20px; font-weight: bold; cursor: pointer; transition: 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-left: 10px;}
-        .btn-base:hover { background: #fff8e1; transform: scale(1.05); }
+        .note-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 25px;
+            padding-bottom: 120px; /* FABボタンの被り防止 */
+        }
+        .note-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.08);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 3px solid transparent;
+            display: flex;
+            flex-direction: column;
+        }
+        .note-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--primary-color);
+            box-shadow: 0 12px 25px rgba(255, 202, 40, 0.3);
+        }
+        .note-color-bar {
+            height: 80px;
+            display: flex;
+            align-items: flex-end;
+            padding: 15px;
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+            text-shadow: 1px 1px 4px rgba(0,0,0,0.4);
+            background: linear-gradient(135deg, var(--secondary-color), #2980b9);
+        }
+        .note-info {
+            padding: 15px;
+            background: white;
+            font-size: 13px;
+            color: #7f8c8d;
+            flex: 1;
+            line-height: 1.5;
+        }
 
-        /* ==========================================
-           🏠 1. ホーム画面（ダッシュボード）
-           ========================================== */
-        #home-screen { display: flex; flex-direction: column; height: 100vh; background: #fdfdfd; background-image: radial-gradient(#ffecb3 2px, transparent 2px); background-size: 30px 30px; position: absolute; width: 100%; top: 0; left: 0; z-index: 100;}
-        .home-content { padding: 30px; overflow-y: auto; flex: 1; }
-        .home-controls { margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;}
+        /* 自由ノート用フローティングアクションボタン (FAB) */
+        .fab-btn {
+            position: fixed;
+            bottom: 40px;
+            left: 40px;
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            background: var(--info-color);
+            color: white;
+            border: 4px solid white;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            z-index: 1000;
+            font-family: var(--font-family);
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .fab-btn .icon {
+            font-size: 32px;
+            margin-bottom: 2px;
+        }
+        .fab-btn:hover {
+            background: #0097a7;
+            transform: scale(1.15) rotate(-5deg);
+        }
+
+        /* ==========================================================================
+           4. メインボード画面 (Whiteboard Core)
+           ========================================================================== */
+        #app-screen {
+            display: none;
+            flex-direction: column;
+            height: 100vh;
+            width: 100vw;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 50;
+            background: var(--bg-color);
+        }
+        .board-container {
+            flex: 1;
+            position: relative;
+            overflow: auto;
+            background: var(--board-bg);
+            background-image: radial-gradient(var(--card-border) 2px, transparent 2px);
+            background-size: 30px 30px;
+            cursor: grab; /* 背景を掴んでパンする用 */
+        }
+        .board-container:active {
+            cursor: grabbing;
+        }
         
-        .note-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; padding-bottom: 100px;}
-        .note-card { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.1); cursor: pointer; transition: 0.3s; border: 3px solid transparent;}
-        .note-card:hover { transform: translateY(-5px); border-color: #ffca28; box-shadow: 0 8px 20px rgba(255, 202, 40, 0.3);}
-        .note-color-bar { height: 70px; display: flex; align-items: flex-end; padding: 15px; color: white; font-size: 18px; font-weight: bold; text-shadow: 1px 1px 3px rgba(0,0,0,0.3);}
-        .note-info { padding: 15px; background: white; font-size: 13px; color: #888; }
-
-        .fab-btn { position: fixed; bottom: 30px; left: 30px; width: 85px; height: 85px; border-radius: 50%; background: #00bcd4; color: white; border: 3px solid white; box-shadow: 0 6px 15px rgba(0,0,0,0.3); cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 13px; font-weight: bold; z-index: 1000; font-family: 'Zen Maru Gothic'; transition: 0.2s;}
-        .fab-btn .icon { font-size: 28px; margin-bottom: 2px; }
-        .fab-btn:hover { background: #0097a7; transform: scale(1.1); }
-
-        /* ==========================================
-           📝 2. メインボード（本体）画面
-           ========================================== */
-        #app-screen { display: none; flex-direction: column; height: 100vh; width: 100vw; position: absolute; top: 0; left: 0; z-index: 50; background: #fffdf2;}
-        .board-container { flex: 1; position: relative; overflow: auto; background: #fdfdfd; background-image: radial-gradient(#ffecb3 2px, transparent 2px); background-size: 30px 30px; }
-        .board-content { width: 3000px; height: 3000px; position: absolute; top: 0; left: 0; transform-origin: top left; transition: transform 0.1s ease-out; }
-        .board-area { display: none; width: 100%; height: 100%; position: absolute; top:0; left:0; }
-        .board-area.active { display: block; }
-        #drawing-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 5; pointer-events: none; }
-
-        .quick-menu { display: none; position: absolute; top: 15px; left: 15px; background: rgba(0,0,0,0.7); color: white; padding: 10px 15px; border-radius: 10px; z-index: 2000; border: 2px solid #ffca28;}
-        .quick-menu button { background: #e74c3c; color: white; border: none; padding: 5px 10px; cursor: pointer; border-radius: 5px; font-family: 'Zen Maru Gothic'; font-weight: bold;}
-
-        .card { background: #fff9c4; border: 3px solid #ffca28; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); position: absolute; width: 250px; height: 180px; z-index: 10; transition: box-shadow 0.2s;}
-        .card.selected { border-color: #e74c3c; box-shadow: 0 0 15px rgba(231, 76, 60, 0.6); z-index: 40;}
-        .card.active-edit { border-color: #3498db; box-shadow: 0 0 20px rgba(52, 152, 219, 0.6); z-index: 50 !important;}
-        .card-header { background: #ffca28; height: 25px; cursor: grab; display: flex; justify-content: space-between; align-items: center; padding: 0 10px; font-weight: bold; color: #5a4b3c; border-radius: 11px 11px 0 0;}
-        .card-content { height: calc(100% - 25px); position: relative; overflow: hidden; padding: 5px; box-sizing: border-box; display: flex; flex-direction: column;}
-        .card-inner-item { width: 100%; flex: 1; cursor: move; position: relative; }
-        .card-inner-item textarea { width: 100%; height: 100%; border: none; outline: none; resize: none; font-family: 'Zen Maru Gothic'; font-size: 16px; background: transparent; color: #333; cursor: text; box-sizing: border-box;}
-
-        .card-edit-toolbar { display: none; position: absolute; top: -50px; left: 50%; transform: translateX(-50%); background: white; padding: 5px 10px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); gap: 6px; border: 2px solid #ffca28; z-index: 60; white-space: nowrap;}
-        .card.active-edit .card-edit-toolbar { display: flex; }
-        .c-tool-btn { background: #fffdf2; border: 1px solid #ffe082; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; font-size: 14px; display: flex; justify-content: center; align-items: center; transition: 0.2s; padding: 0;}
-        .c-tool-btn:hover { background: #ffecb3; transform: scale(1.1); }
-
-        .bottom-toolbar { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: white; padding: 10px 20px; border-radius: 40px; box-shadow: 0 5px 20px rgba(0,0,0,0.15); display: flex; gap: 10px; align-items: center; z-index: 200; border: 3px solid #ffca28;}
-        .action-btn { background: #fdfdfd; border: 2px solid #ddd; border-radius: 50%; font-size: 18px; width: 40px; height: 40px; cursor: pointer; transition: 0.2s;}
-        .action-btn:hover { background: #eee; }
-        .zoom-select { padding: 5px 10px; border-radius: 15px; border: 2px solid #ffe082; font-family: 'Zen Maru Gothic'; font-weight: bold; outline: none; background: #fff9c4;}
-        .main-add-btn { background: #ffca28; color: #5a4b3c; border: none; border-radius: 20px; padding: 8px 15px; font-weight: bold; font-size: 16px; cursor: pointer; box-shadow: 0 3px 0 #f39c12; transition: 0.1s; display: flex; align-items: center; gap: 5px;}
-        .main-add-btn:active { transform: translateY(3px); box-shadow: none; }
-        .pdf-btn { background: #3498db; color: white; border: none; border-radius: 20px; padding: 8px 15px; font-weight: bold; cursor: pointer; box-shadow: 0 3px 0 #2980b9;}
-
-        .board-actions { position: fixed; bottom: 20px; left: 20px; display: flex; gap: 15px; z-index: 1000; }
-        .submit-btn { background: #e74c3c; color: white; padding: 15px 20px; border-radius: 15px; border: none; font-weight: bold; cursor: pointer; font-size: 16px; box-shadow: 0 4px 10px rgba(231, 76, 60, 0.4); font-family: 'Zen Maru Gothic'; transition: 0.2s;}
-        .public-btn { background: #3498db; color: white; padding: 15px 20px; border-radius: 15px; border: none; font-weight: bold; cursor: pointer; font-size: 16px; box-shadow: 0 4px 10px rgba(52, 152, 219, 0.4); font-family: 'Zen Maru Gothic'; transition: 0.2s;}
-        .submit-btn:hover, .public-btn:hover { transform: translateY(-3px); }
-
-        /* 👀 ライブモニタリング / 📥 提出物一覧 モーダル群 */
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.6); z-index: 4000; justify-content: center; align-items: center; backdrop-filter: blur(3px);}
-        .modal-box { background: white; padding: 30px; border-radius: 20px; width: 90%; max-width: 1000px; height: 85vh; display: flex; flex-direction: column; border: 4px solid #ffca28; position: relative;}
+        /* 超巨大な論理キャンバス空間 */
+        .board-content {
+            width: 5000px;
+            height: 5000px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            transform-origin: top left;
+            transition: transform 0.1s ease-out; /* ズーム時の滑らかさ */
+        }
         
-        #live-monitor-modal { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #2c3e50; z-index: 6000; flex-direction: column; }
-        .monitor-header { background: #34495e; color: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; font-size: 20px; font-weight: bold;}
-        .monitor-grid { flex: 1; padding: 20px; overflow-y: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; }
-        .monitor-card { background: #000; border: 3px solid #7f8c8d; border-radius: 10px; overflow: hidden; display: flex; flex-direction: column; position: relative;}
-        .monitor-card img { width: 100%; height: 180px; object-fit: contain; background: #111;}
-        .monitor-name { background: #ecf0f1; padding: 8px; text-align: center; font-weight: bold; font-size: 14px; margin: 0; color: #333;}
-        .offline-text { position: absolute; top: 0; left: 0; width: 100%; height: 180px; display: flex; justify-content: center; align-items: center; color: #e74c3c; font-weight: bold; font-size: 24px; background: rgba(0,0,0,0.8); z-index: 2;}
+        .board-area {
+            display: none;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        .board-area.active {
+            display: block;
+        }
+        
+        /* 描画用レイヤー群 */
+        #drawing-layer, #link-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 5;
+            pointer-events: none; /* クリックを下のカードに貫通させる */
+        }
+        #link-layer {
+            z-index: 4; /* カードと描画レイヤーの間 */
+        }
 
-        .toast { position: fixed; top: -50px; left: 50%; transform: translateX(-50%); background: #8bc34a; color: white; padding: 10px 20px; border-radius: 20px; font-weight: bold; transition: 0.5s; z-index: 9999;}
-        .toast.show { top: 20px; }
+        /* 複数選択用の矩形（ラッソツール） */
+        #selection-box {
+            position: absolute;
+            border: 2px dashed var(--secondary-color);
+            background: rgba(52, 152, 219, 0.2);
+            display: none;
+            z-index: 9999;
+            pointer-events: none;
+        }
+
+        /* ==========================================================================
+           5. カードのUIデザイン (Card Component)
+           ========================================================================== */
+        .card {
+            background: var(--card-bg);
+            border: 3px solid var(--primary-color);
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            position: absolute;
+            width: 260px;
+            min-height: 180px;
+            z-index: var(--z-index-base);
+            transition: box-shadow 0.2s, border-color 0.2s;
+            display: flex;
+            flex-direction: column;
+            cursor: move;
+        }
+        
+        /* 選択中（シングル/マルチセレクト） */
+        .card.selected {
+            border-color: var(--danger-color);
+            box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.3), 0 8px 20px rgba(0,0,0,0.2);
+            z-index: 40;
+        }
+        
+        /* みんなのボード同期中のアニメーション */
+        .card.syncing {
+            animation: pulse-sync 1.5s infinite;
+        }
+        @keyframes pulse-sync {
+            0% { box-shadow: 0 0 0 0 rgba(52, 152, 219, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(52, 152, 219, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(52, 152, 219, 0); }
+        }
+
+        .card-header {
+            background: var(--primary-color);
+            height: 28px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 12px;
+            font-weight: bold;
+            color: var(--text-color);
+            border-radius: 11px 11px 0 0;
+            font-size: 14px;
+        }
+        
+        .card-content {
+            flex: 1;
+            padding: 10px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            background: transparent;
+            word-break: break-all;
+            overflow: hidden; /* コンテンツが溢れるのを防ぐ */
+        }
+
+        /* カード下部の名前表示領域（必須要件） */
+        .card-author-footer {
+            height: 24px;
+            background: rgba(255, 255, 255, 0.6);
+            border-top: 1px solid rgba(0,0,0,0.05);
+            border-radius: 0 0 11px 11px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 0 10px;
+            font-size: 11px;
+            font-weight: bold;
+            color: #7f8c8d;
+        }
+
+        /* 内部に動的に追加されるメディア群 */
+        .card-inner-text {
+            white-space: pre-wrap;
+            font-size: 16px;
+            color: #333;
+            flex: 1;
+        }
+        .card-inner-image {
+            max-width: 100%;
+            max-height: 120px;
+            object-fit: contain;
+            border-radius: 5px;
+            margin-bottom: 5px;
+        }
+        .card-inner-link {
+            color: var(--secondary-color);
+            text-decoration: underline;
+            word-break: break-all;
+            font-size: 14px;
+        }
+
+        /* ==========================================================================
+           6. 全画面カード作成・編集モード (Full-screen Editor Modal)
+           ========================================================================== */
+        #fullscreen-editor-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: var(--bg-color);
+            z-index: var(--z-index-fullscreen);
+            flex-direction: column;
+        }
+        
+        .editor-header {
+            background: var(--text-color);
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        
+        .editor-workspace {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #e9ecef;
+            padding: 20px;
+            position: relative;
+        }
+
+        /* エディタの中央の巨大なカード */
+        .mega-card {
+            width: 80vw;
+            height: 70vh;
+            background: var(--card-bg);
+            border: 5px solid var(--primary-color);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .mega-textarea {
+            width: 100%;
+            flex: 1;
+            border: none;
+            background: transparent;
+            padding: 30px;
+            font-family: var(--font-family);
+            font-size: 28px;
+            resize: none;
+            outline: none;
+            color: #333;
+            z-index: 2; /* ペン描画より上に文字 */
+        }
+
+        /* 全画面エディタ用のペン描画レイヤー */
+        #editor-drawing-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 3;
+            pointer-events: none; /* デフォルトは無効、ペンモードで有効に */
+        }
+
+        /* エディタのメディア表示領域 */
+        #editor-media-container {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            max-width: 40%;
+            max-height: 40%;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+        }
+        #editor-media-container img {
+            max-width: 100%;
+            max-height: 100%;
+            border-radius: 10px;
+            border: 2px dashed #ccc;
+        }
+
+        /* エディタのツールバー（下部） */
+        .editor-toolbar {
+            background: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+        }
+        .editor-tool-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #fff;
+            border: 2px solid #ddd;
+            border-radius: 12px;
+            width: 70px;
+            height: 70px;
+            font-size: 12px;
+            font-weight: bold;
+            color: #555;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .editor-tool-btn .icon {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+        .editor-tool-btn:hover {
+            background: #f8f9fa;
+            border-color: var(--primary-color);
+            color: var(--primary-dark);
+            transform: translateY(-3px);
+        }
+        .editor-tool-btn.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-dark);
+        }
+
+        /* ==========================================================================
+           7. ツールバーとアクションボタン (Toolbars & Actions)
+           ========================================================================== */
+        .bottom-toolbar {
+            position: fixed;
+            bottom: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(5px);
+            padding: 12px 25px;
+            border-radius: 40px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            z-index: 200;
+            border: 3px solid var(--primary-color);
+        }
+        
+        .action-btn {
+            background: #fdfdfd;
+            border: 2px solid #ddd;
+            border-radius: 50%;
+            font-size: 20px;
+            width: 45px;
+            height: 45px;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .action-btn:hover { background: #eee; transform: scale(1.1); }
+        
+        .zoom-select {
+            padding: 8px 15px;
+            border-radius: 20px;
+            border: 2px solid var(--card-border);
+            font-family: var(--font-family);
+            font-weight: bold;
+            outline: none;
+            background: var(--card-bg);
+            cursor: pointer;
+        }
+        
+        .main-add-btn {
+            background: var(--primary-color);
+            color: var(--text-color);
+            border: none;
+            border-radius: 25px;
+            padding: 10px 20px;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            box-shadow: 0 4px 0 var(--primary-dark);
+            transition: 0.1s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .main-add-btn:active {
+            transform: translateY(4px);
+            box-shadow: none;
+        }
+
+        /* 左下：カードを提出・共有するボタン群 */
+        .board-actions {
+            position: fixed;
+            bottom: 25px;
+            left: 25px;
+            display: flex;
+            gap: 15px;
+            z-index: 1000;
+        }
+        .submit-btn, .public-btn {
+            padding: 15px 25px;
+            border-radius: 15px;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 16px;
+            font-family: var(--font-family);
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+            color: white;
+        }
+        .submit-btn { background: var(--danger-color); }
+        .submit-btn:hover { background: #c0392b; transform: translateY(-3px); }
+        .public-btn { background: var(--secondary-color); }
+        .public-btn:hover { background: #2980b9; transform: translateY(-3px); }
+
+        /* ==========================================================================
+           8. モニタリング・提出物一覧・画面共有 (Modals & Overlays)
+           ========================================================================== */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: var(--modal-bg);
+            z-index: var(--z-index-modal);
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+        }
+        .modal-box {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 1000px;
+            height: 85vh;
+            display: flex;
+            flex-direction: column;
+            border: 5px solid var(--primary-color);
+            position: relative;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+        }
+
+        /* LIVEモニタリング専用（黒背景） */
+        #live-monitor-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #2c3e50;
+            z-index: 6000;
+            flex-direction: column;
+        }
+        .monitor-header {
+            background: #1a252f;
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 22px;
+            font-weight: bold;
+            border-bottom: 2px solid #34495e;
+        }
+        .monitor-grid {
+            flex: 1;
+            padding: 25px;
+            overflow-y: auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .monitor-card {
+            background: #000;
+            border: 4px solid #7f8c8d;
+            border-radius: 12px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            transition: 0.3s;
+        }
+        .monitor-card:hover {
+            transform: scale(1.02);
+            border-color: var(--primary-color);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+        }
+        .monitor-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: contain;
+            background: #111;
+        }
+        .monitor-name {
+            background: #ecf0f1;
+            padding: 10px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 15px;
+            margin: 0;
+            color: #2c3e50;
+        }
+        .offline-text {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 200px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 26px;
+            background: rgba(0,0,0,0.85);
+            z-index: 2;
+            color: #fff;
+        }
+
+        /* 先生の画面共有強制表示オーバーレイ */
+        #screen-share-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0,0,0,0.9);
+            z-index: 10000; /* 最前面 */
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        #screen-share-overlay img {
+            max-width: 95vw;
+            max-height: 85vh;
+            border: 5px solid var(--primary-color);
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        /* トースト通知 */
+        .toast {
+            position: fixed;
+            top: -60px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--success-color);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 30px;
+            font-weight: bold;
+            font-size: 16px;
+            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            z-index: 99999;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .toast.show {
+            top: 30px;
+        }
     </style>
 </head>
 <body>
 
     <div id="home-screen">
         <div class="header">
-            <h1><img src="oklink.jpg" class="logo-icon"> マイノート（ホーム）</h1>
-            <div style="display:flex; align-items:center; gap:10px;">
-                <div id="teacher-controls-home" style="display:none; gap:10px; margin-right:15px;">
-                    <button class="btn-base" style="background:#f39c12; color:white; border-color:#f39c12;" onclick="toggleScreenShare()">🖥️ 先生の画面共有</button>
-                    <button class="btn-base" style="background:#9b59b6; color:white; border-color:#9b59b6;" onclick="openLiveMonitorWindow()">👀 LIVEモニタリング</button>
+            <h1><img src="oklink.jpg" class="logo-icon" alt="ロゴ"> マイノート（ホーム）</h1>
+            <div style="display:flex; align-items:center; gap:15px;">
+                <div id="teacher-controls-home" style="display:none; gap:10px;">
+                    <button class="btn-base" style="background:var(--primary-dark); color:white; border:none;" onclick="toggleScreenShare()">
+                        🖥️ 画面共有を開始
+                    </button>
                 </div>
-                <div id="user-info-dash" style="font-weight:bold; color: #d35400;">👤 通信中...</div>
+                <div id="user-info-dash" style="font-weight:bold; color: var(--danger-color); background:white; padding:5px 15px; border-radius:15px;">
+                    👤 通信中...
+                </div>
             </div>
         </div>
 
         <div class="home-content">
             <div class="home-controls">
-                <h2 style="color: #5a4b3c; margin:0;">📚 あなたのノート一覧</h2>
+                <h2 style="margin:0;">📚 あなたのノート一覧</h2>
             </div>
             
             <div class="note-grid" id="lesson-grid">
@@ -125,39 +792,53 @@
     <div id="app-screen">
         <div class="header">
             <h1>
-                <img src="oklink.jpg" class="logo-icon"> 
+                <img src="oklink.jpg" class="logo-icon" alt="ロゴ"> 
                 <span id="current-lesson-title">ノート</span>
-                <button class="btn-base" onclick="toggleBoard()">マイボード ⇔ みんなのボード</button>
-                <button class="btn-base" style="background:#e67e22; color:white; border-color:#e67e22;" onclick="openSubmissionModal()">📥 提出物を見る</button>
+                <button class="btn-base" style="margin-left: 20px;" onclick="toggleBoard()">
+                    🔄 マイボード ⇔ みんなのボード
+                </button>
             </h1>
-            <div style="display:flex; align-items:center; gap:10px;">
-                <div id="teacher-controls-app" style="display:none; gap:10px; margin-right:15px;">
-                    <button class="btn-base" style="background:#f39c12; color:white; border-color:#f39c12;" onclick="toggleScreenShare()">🖥️ 先生の画面共有</button>
-                    <button class="btn-base" style="background:#9b59b6; color:white; border-color:#9b59b6;" onclick="openLiveMonitorWindow()">👀 LIVEモニタリング</button>
+            <div style="display:flex; align-items:center; gap:15px;">
+                <div id="teacher-controls-app" style="display:none; gap:10px;">
+                    <button class="btn-base" style="background:#9b59b6; color:white; border:none;" onclick="openLiveMonitorWindow()">
+                        👀 LIVEモニタリング
+                    </button>
+                    <button class="btn-base" style="background:#e67e22; color:white; border:none;" onclick="openSubmissionModal()">
+                        📥 全員の提出物
+                    </button>
                 </div>
-                <button class="btn-base" style="background:#e74c3c; color:white; border-color:#e74c3c;" onclick="exitLesson()">🔙 ホームに戻る</button>
+                <button class="btn-base" style="background:var(--danger-color); color:white; border:none;" onclick="exitLesson()">
+                    🔙 ホームに戻る
+                </button>
             </div>
         </div>
 
-        <div class="board-container" id="board-container" onclick="clearSelection(event)">
-            <div id="teacher-quick-menu" class="quick-menu">
-                <span style="font-size:12px;">先生用クイックメニュー</span><br>
-                <button onclick="clearPublicBoard()" style="margin-top:5px;">🗑️ 全員のボードをリセット</button>
-            </div>
+        <div class="board-container" id="board-container">
+            
+            <div id="selection-box"></div>
 
             <div class="board-content" id="board-content">
-                <canvas id="drawing-layer" width="3000" height="3000"></canvas>
-                <canvas id="link-layer" width="3000" height="3000" style="position: absolute; top: 0; left: 0; z-index: 4; pointer-events: none;"></canvas>
+                <canvas id="drawing-layer" width="5000" height="5000"></canvas>
+                <canvas id="link-layer" width="5000" height="5000"></canvas>
                 
-                <div id="my-board" class="board-area active"><h2 style="position:absolute; top:10px; left:20px; color:#ccc;">✏️ マイボード</h2></div>
-                <div id="minna-board" class="board-area"><h2 style="position:absolute; top:10px; left:20px; color:#ccc;">🌐 みんなのボード</h2></div>
+                <div id="my-board" class="board-area active">
+                    <h2 style="position:absolute; top:15px; left:25px; color:#bdc3c7; font-size:28px; pointer-events:none;">✏️ マイボード</h2>
+                </div>
+                
+                <div id="minna-board" class="board-area">
+                    <h2 style="position:absolute; top:15px; left:25px; color:#bdc3c7; font-size:28px; pointer-events:none;">🌐 みんなのボード (リアルタイム同期中)</h2>
+                    <button id="btn-reset-public" style="display:none; position:absolute; top:20px; right:20px; background:var(--danger-color); color:white; border:none; padding:10px; border-radius:10px; font-weight:bold; cursor:pointer;" onclick="clearPublicBoard()">
+                        🗑️ ボードをリセット
+                    </button>
+                </div>
             </div>
         </div>
 
         <div class="bottom-toolbar">
             <button class="action-btn" title="戻る" onclick="undoAction()">↩️</button>
             <button class="action-btn" title="やり直す" onclick="redoAction()">↪️</button>
-            <div style="width: 2px; height: 30px; background: #ffe082; margin: 0 5px;"></div>
+            
+            <div style="width: 2px; height: 30px; background: var(--card-border); margin: 0 10px;"></div>
             
             <select class="zoom-select" id="zoom-select" onchange="applyZoomFromDropdown()">
                 <option value="custom" id="custom-zoom-option" style="display:none;">🔍 カスタム</option>
@@ -168,33 +849,96 @@
                 <option value="1.50">🔍 150%</option>
             </select>
             
-            <div style="width: 2px; height: 30px; background: #ffe082; margin: 0 5px;"></div>
-            <button class="pdf-btn" onclick="document.getElementById('pdf-input').click()">📄 PDF取込</button>
-            <input type="file" id="pdf-input" accept="application/pdf" style="display:none" onchange="importPDF(event)">
-            <button class="main-add-btn" onclick="addCard()">➕ カードを作成</button>
+            <div style="width: 2px; height: 30px; background: var(--card-border); margin: 0 10px;"></div>
+            
+            <button class="btn-base" title="矢印でつなぐ" onclick="toggleLinkMode()" id="btn-tool-link">🔗 つなぐ</button>
+            <button class="btn-base" title="ペンで書く" onclick="toggleBoardPen()" id="btn-tool-pen">🖋️ ペン</button>
+            
+            <div style="width: 2px; height: 30px; background: var(--card-border); margin: 0 10px;"></div>
+            
+            <button class="main-add-btn" onclick="createNewCardOnBoard()">➕ カードを作成</button>
         </div>
 
         <div class="board-actions">
-            <button class="submit-btn" onclick="submitSelectedCard()">📥 提出ボックス</button>
-            <button class="public-btn" onclick="sendSelectedToPublic()">🌍 みんなのボードへ</button>
+            <button class="submit-btn" onclick="submitSelectedCards()">
+                📥 提出ボックスへ
+            </button>
+            <button class="public-btn" onclick="sendSelectedCardsToPublic()">
+                🌍 みんなのボードへ
+            </button>
+        </div>
+    </div>
+
+    <div id="fullscreen-editor-modal">
+        <div class="editor-header">
+            <button class="btn-base" style="color:var(--text-color);" onclick="closeFullscreenEditor()">
+                ❌ キャンセル
+            </button>
+            <h2 style="margin:0; font-size:22px;">カード作成・編集モード</h2>
+            <button class="btn-base" style="background:var(--success-color); color:white; border:none;" onclick="saveFullscreenEditor()">
+                💾 完了してボードに戻る
+            </button>
+        </div>
+
+        <div class="editor-workspace">
+            <div class="mega-card" id="editor-mega-card">
+                <canvas id="editor-drawing-canvas"></canvas>
+                <div id="editor-media-container"></div>
+                <textarea class="mega-textarea" id="editor-textarea" placeholder="ここに文字を入力してください..."></textarea>
+            </div>
+        </div>
+
+        <div class="editor-toolbar">
+            <button class="editor-tool-btn" onclick="document.getElementById('editor-textarea').focus()">
+                <span class="icon">📝</span>文字を打つ
+            </button>
+            <button class="editor-tool-btn" id="editor-pen-btn" onclick="toggleEditorPen()">
+                <span class="icon">🖋️</span>ペンツール
+            </button>
+            <button class="editor-tool-btn" onclick="insertLinkToEditor()">
+                <span class="icon">🔗</span>リンクを張る
+            </button>
+            <button class="editor-tool-btn" onclick="document.getElementById('editor-camera-input').click()">
+                <span class="icon">📸</span>写真を撮る
+            </button>
+            <button class="editor-tool-btn" onclick="document.getElementById('editor-image-input').click()">
+                <span class="icon">🖼️</span>画像を張る
+            </button>
+            <button class="editor-tool-btn" onclick="changeEditorColor()">
+                <span class="icon">🎨</span>色を変える
+            </button>
+
+            <input type="file" id="editor-camera-input" accept="image/*" capture="environment" style="display:none" onchange="handleEditorImageUpload(event)">
+            <input type="file" id="editor-image-input" accept="image/*" style="display:none" onchange="handleEditorImageUpload(event)">
         </div>
     </div>
 
     <div id="live-monitor-modal">
         <div class="monitor-header">
-            <span>👀 ライブモニタリング（全生徒リアルタイム）</span>
+            <span>👀 LIVEモニタリング（現在の授業にいる生徒）</span>
+            <span id="monitor-lesson-name" style="font-size: 16px; color:#bdc3c7;"></span>
         </div>
         <div class="monitor-grid" id="monitor-grid"></div>
     </div>
 
     <div id="submission-modal" class="modal-overlay">
         <div class="modal-box">
-            <button onclick="closeModal('submission-modal')" style="position:absolute; top:15px; right:15px; background:none; border:none; font-size:20px; cursor:pointer; color:#888;">✖</button>
-            <h2 style="margin-top:0; color:#d35400; border-bottom:2px solid #ffe082; padding-bottom:10px;">📥 提出ボックス（みんなの回答・相互評価）</h2>
-            <div id="submission-container" style="flex:1; overflow-y:auto; display:grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap:20px; padding:15px; background:#fffdf2; border-radius:10px; border:2px solid #ffe082;">
-                <p style="color:#aaa;">⏳ 提出物を読み込んでいます...</p>
+            <button onclick="closeModal('submission-modal')" style="position:absolute; top:20px; right:25px; background:none; border:none; font-size:24px; cursor:pointer; color:#888;">✖</button>
+            <h2 style="margin-top:0; color:var(--primary-dark); border-bottom:3px solid var(--card-border); padding-bottom:15px; display:flex; justify-content:space-between;">
+                <span>📥 提出ボックス（みんなの回答）</span>
+                <span style="font-size:14px; color:#888; font-weight:normal; margin-top:10px;">※❤️を押して「いいね！」を送り合おう</span>
+            </h2>
+            <div id="submission-container" style="flex:1; overflow-y:auto; display:grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap:25px; padding:20px; background:#fafafa; border-radius:12px; border:2px inset #ddd;">
+                <p style="color:#aaa; font-size:18px;">⏳ 提出データを読み込んでいます...</p>
             </div>
         </div>
+    </div>
+
+    <div id="screen-share-overlay">
+        <h2 style="color:white; margin-bottom:15px; font-size:24px; text-shadow:0 2px 5px rgba(0,0,0,0.8);">
+            👨‍🏫 先生の画面に注目してください
+        </h2>
+        <img id="shared-screen-img" src="" alt="先生の画面">
     </div>
 
     <div id="toast-notification" class="toast">🍀 メッセージ</div>
@@ -204,9 +948,10 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <script>
-        // ==========================================
-        // 📋 1. 初期化と別ウィンドウ(モニタリング)の判定
-        // ==========================================
+        /** * ==========================================================================
+         * 📋 1. 初期化とグローバル状態管理 (State Management)
+         * ==========================================================================
+         */
         const firebaseConfig = {
             apiKey: "AIzaSyB7jGlKT6LKGxIqWdJrvxuT8Fj6oJ3U_5A",
             authDomain: "oklink-plus-support.firebaseapp.com",
@@ -215,157 +960,893 @@
         };
         const TEACHER_EMAIL = "ishiinopasokon8610@gmail.com"; 
 
-        const isMonitorWindow = new URLSearchParams(window.location.search).get('monitor') === 'true';
+        // URLパラメータ解析（別ウィンドウでのモニタリング用）
+        const urlParams = new URLSearchParams(window.location.search);
+        const isMonitorWindow = urlParams.get('monitor') === 'true';
+        const targetLessonIdForMonitor = urlParams.get('lessonId');
 
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
         const auth = firebase.auth();
         
-        let currentUser = null;
-        let isTeacher = false;
-        let currentLessonId = null;
-        let captureTimeout = null; // フリーズ防止用の安全なループ用
-        let selectedCard = null; 
-        let cardLinks = []; 
-        let linkingSourceId = null; 
+        // グローバル変数群
+        const STATE = {
+            user: null,
+            isTeacher: false,
+            currentLessonId: null,
+            currentLessonName: "",
+            selectedCards: new Set(), // 複数選択対応のためSetを使用
+            cardLinks: [],            // {from: cardId, to: cardId} の配列
+            isPenMode: false,
+            isLinkMode: false,
+            linkingSourceId: null,
+            currentZoom: 1.0,
+            zIndexCounter: 100,
+            captureTimeout: null,
+            shareTimeout: null,
+            editingCardId: null,      // フルスクリーン編集中のカードID
+            publicBoardRef: null      // みんなのボードのリアルタイムリスナー保持用
+        };
 
+        // UI要素のキャッシュ
+        const UI = {
+            boardContainer: document.getElementById('board-container'),
+            boardContent: document.getElementById('board-content'),
+            myBoard: document.getElementById('my-board'),
+            minnaBoard: document.getElementById('minna-board'),
+            drawCanvas: document.getElementById('drawing-layer'),
+            linkCanvas: document.getElementById('link-layer'),
+            selectBox: document.getElementById('selection-box')
+        };
+        const ctxDraw = UI.drawCanvas.getContext('2d');
+        const ctxLink = UI.linkCanvas.getContext('2d');
+
+        // 別ウィンドウ起動時のUI初期化
         if (isMonitorWindow) {
             window.onload = () => {
                 document.getElementById('home-screen').style.display = 'none';
                 document.getElementById('app-screen').style.display = 'none';
                 document.getElementById('live-monitor-modal').style.display = 'flex';
-                document.getElementById('live-monitor-modal').style.zIndex = '9999';
             };
         }
 
-        // ==========================================
-        // 🔐 2. 認証とデータロード
-        // ==========================================
+        /** * ==========================================================================
+         * 🔐 2. 認証処理と初期データロード (Auth & Initialization)
+         * ==========================================================================
+         */
         auth.onAuthStateChanged(user => {
             if (user) {
-                currentUser = user;
+                STATE.user = user;
                 const userEmail = user.email ? user.email.toLowerCase() : "";
-                isTeacher = (userEmail === TEACHER_EMAIL.toLowerCase());
+                STATE.isTeacher = (userEmail === TEACHER_EMAIL.toLowerCase());
                 
-                if (isMonitorWindow) {
-                    initLiveMonitorData();
+                if (isMonitorWindow && targetLessonIdForMonitor) {
+                    initLiveMonitorData(targetLessonIdForMonitor);
                     return;
                 }
                 
-                document.getElementById('user-info-dash').innerText = isTeacher ? `👨‍🏫 先生 (${user.displayName || 'ゲスト'})` : `👤 生徒 (${user.displayName || 'ゲスト'})`;
-                db.ref('students/' + user.uid).update({ name: user.displayName || '生徒', email: userEmail, lastLogin: Date.now() });
+                document.getElementById('user-info-dash').innerText = STATE.isTeacher ? `👨‍🏫 先生 (${user.displayName || 'ゲスト'})` : `👤 生徒 (${user.displayName || 'ゲスト'})`;
+                
+                // 名簿(students)の更新
+                db.ref('students/' + user.uid).update({ 
+                    name: user.displayName || '生徒', 
+                    email: userEmail, 
+                    lastLogin: Date.now() 
+                });
 
-                if (isTeacher) {
+                if (STATE.isTeacher) {
                     document.getElementById('teacher-controls-home').style.display = 'flex';
                     document.getElementById('teacher-controls-app').style.display = 'flex';
                 }
                 
-                loadAllNotes(); 
+                loadAllNotes();
+                listenToScreenShare(); // 生徒・先生問わず画面共有の監視を開始
             } else {
                 auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
             }
         });
 
-        // ==========================================
-        // 🏠 3. ホーム画面（ノート一覧・保存データ復元）
-        // ==========================================
+        /** * ==========================================================================
+         * 🏠 3. ホーム画面ロジック (Dashboard)
+         * ==========================================================================
+         */
         function loadAllNotes() {
+            if(!STATE.user) return;
             const grid = document.getElementById('lesson-grid');
-            if(!currentUser) return;
             
-            db.ref('users/' + currentUser.uid + '/notes').on('value', mySnap => {
+            // 全てのノート（自由ノート）を取得
+            db.ref('users/' + STATE.user.uid + '/notes').on('value', snap => {
                 grid.innerHTML = ''; 
                 let hasNotes = false;
                 
-                if (mySnap.exists()) {
+                if (snap.exists()) {
                     hasNotes = true;
-                    mySnap.forEach(child => {
-                        const note = child.val();
+                    // 新しい順に並べるため配列化
+                    let notesArr = [];
+                    snap.forEach(child => { notesArr.push({ id: child.key, ...child.val() }); });
+                    notesArr.sort((a, b) => b.timestamp - a.timestamp);
+                    
+                    notesArr.forEach(note => {
+                        const dateStr = new Date(note.timestamp).toLocaleString('ja-JP', {month:'numeric', day:'numeric', hour:'2-digit', minute:'2-digit'});
                         grid.innerHTML += `
-                            <div class="note-card" onclick="enterLesson('${child.key}', '${note.title}', 'free')">
-                                <div class="note-color-bar" style="background: #00bcd4;">📓 ${note.title}</div>
-                                <div class="note-info">最終更新<br>${new Date(note.timestamp).toLocaleDateString()} ${new Date(note.timestamp).toLocaleTimeString()}</div>
+                            <div class="note-card" onclick="enterLesson('${note.id}', '${note.title}')">
+                                <div class="note-color-bar">📓 ${note.title}</div>
+                                <div class="note-info">
+                                    <span style="display:block; margin-bottom:5px; font-weight:bold; color:#34495e;">自由ノート</span>
+                                    🕒 最終更新: ${dateStr}
+                                </div>
                             </div>
                         `;
                     });
                 }
-                if (!hasNotes) grid.innerHTML = '<p style="color:#888; font-size: 18px; font-weight: bold;">📭 まだノートがありません。<br>左下の「自由ノート」から作ってみましょう！</p>';
+                if (!hasNotes) {
+                    grid.innerHTML = '<p style="color:#888; font-size:18px; font-weight:bold; padding:20px;">📭 まだノートがありません。<br>左下の「自由ノート」ボタンから新しく作成してください。</p>';
+                }
             });
         }
 
-        // 🚀 【重要】通信を待たずに即座に画面を開く（ホワイトボードが出ない問題の解決）
+        /**
+         * 新規自由ノートの作成と入室
+         */
         function createNewFreeNote() {
-            if(!currentUser) {
-                alert("ログインを確認しています。もう一度押してください。");
-                return;
-            }
-            const newNoteRef = db.ref('users/' + currentUser.uid + '/notes').push();
-            const noteId = newNoteRef.key;
+            if(!STATE.user) return alert("認証を確認しています...");
             
-            // UIを瞬時に切り替え
-            enterLesson(noteId, '📓 自由ノート', 'free');
+            const newNoteRef = db.ref('users/' + STATE.user.uid + '/notes').push();
+            const noteId = newNoteRef.key;
+            const noteName = '📓 自由ノート ' + new Date().toLocaleDateString('ja-JP', {month:'short', day:'numeric'});
+            
+            // 先に画面を遷移して体感速度を上げる
+            enterLesson(noteId, noteName);
 
-            // 裏側でデータベースに保存
+            // バックグラウンドでDB保存
             newNoteRef.set({
-                title: "自由ノート",
+                title: noteName,
                 timestamp: Date.now(),
                 boardHtml: "",
                 linksData: "[]"
-            }).catch(e => console.error("ノートの保存に失敗:", e));
+            }).catch(e => console.error("保存エラー:", e));
         }
 
-        function enterLesson(id, name, type) {
-            currentLessonId = id;
-            cardLinks = [];
-            linkingSourceId = null;
+        /**
+         * 指定されたノート(ホワイトボード)へ入室
+         * @param {string} id - ノートのID
+         * @param {string} name - ノートの名前
+         */
+        function enterLesson(id, name) {
+            STATE.currentLessonId = id;
+            STATE.currentLessonName = name;
+            STATE.selectedCards.clear();
+            STATE.cardLinks = [];
+            STATE.linkingSourceId = null;
             
+            // 画面の切り替え
             document.getElementById('home-screen').style.display = 'none';
-            const appScreen = document.getElementById('app-screen');
-            appScreen.style.display = 'flex';
-            appScreen.style.zIndex = '500'; 
-            
+            document.getElementById('app-screen').style.display = 'flex';
             document.getElementById('current-lesson-title').innerText = name;
             
-            // 必ずホワイトボードの枠組みを用意して強制表示する
-            document.getElementById('my-board').innerHTML = '<h2 style="position:absolute; top:10px; left:20px; color:#ccc;">✏️ マイボード</h2>';
-            document.getElementById('minna-board').innerHTML = '<h2 style="position:absolute; top:10px; left:20px; color:#ccc;">🌐 みんなのボード</h2>';
-            document.getElementById('drawing-layer').getContext('2d').clearRect(0,0,3000,3000);
+            // ボードの初期化
+            UI.myBoard.innerHTML = '<h2 style="position:absolute; top:15px; left:25px; color:#bdc3c7; font-size:28px; pointer-events:none;">✏️ マイボード</h2>';
+            UI.minnaBoard.innerHTML = '<h2 style="position:absolute; top:15px; left:25px; color:#bdc3c7; font-size:28px; pointer-events:none;">🌐 みんなのボード</h2>';
+            if(STATE.isTeacher) {
+                UI.minnaBoard.innerHTML += `<button id="btn-reset-public" style="position:absolute; top:20px; right:20px; background:var(--danger-color); color:white; border:none; padding:10px; border-radius:10px; font-weight:bold; cursor:pointer; z-index:1000;" onclick="clearPublicBoard()">🗑️ ボードをリセット</button>`;
+            }
+            ctxDraw.clearRect(0,0,5000,5000);
+            ctxLink.clearRect(0,0,5000,5000);
             
-            // 既存のデータを取得（失敗してもエラーにならないようcatchを入れる）
-            db.ref('users/' + currentUser.uid + '/notes/' + id).once('value').then(snap => {
+            // データの読み込み
+            db.ref('users/' + STATE.user.uid + '/notes/' + id).once('value').then(snap => {
                 if (snap.exists() && snap.val().boardHtml) {
-                    document.getElementById('my-board').innerHTML = snap.val().boardHtml;
-                    cardLinks = JSON.parse(snap.val().linksData || '[]');
+                    UI.myBoard.innerHTML = snap.val().boardHtml;
+                    STATE.cardLinks = JSON.parse(snap.val().linksData || '[]');
                 }
-                rebindCardEvents(); 
+                rebindAllEvents(); 
                 drawLinks();
                 saveHistory(); 
-                if (!isTeacher) startScreenCaptureLoop();
+                
+                // 生徒の場合は監視用画像を送信開始
+                if (!STATE.isTeacher) startScreenCaptureLoop();
+                
+                // みんなのボードのリアルタイム同期を開始
+                startPublicBoardSync();
             }).catch(err => {
-                console.error("データの読み込みエラー:", err);
-                // エラー時でも操作を継続できるようにする
-                rebindCardEvents(); 
-                drawLinks();
-                saveHistory(); 
-                if (!isTeacher) startScreenCaptureLoop();
+                console.error("読込エラー:", err);
+                rebindAllEvents(); drawLinks(); saveHistory();
             });
         }
 
+        /**
+         * ノートから退室してホームへ戻る
+         */
         function exitLesson() {
-            currentLessonId = null;
-            if(captureTimeout) clearTimeout(captureTimeout);
+            STATE.currentLessonId = null;
+            if(STATE.captureTimeout) clearTimeout(STATE.captureTimeout);
+            stopPublicBoardSync();
+            
             document.getElementById('app-screen').style.display = 'none';
             document.getElementById('home-screen').style.display = 'flex';
         }
 
-        // ==========================================
-        // 👀 4. LIVEモニタニング（別ウィンドウ処理）
-        // ==========================================
-        function openLiveMonitorWindow() {
-            window.open(window.location.href.split('?')[0] + '?monitor=true', '_blank', 'width=1000,height=800');
+        /** * ==========================================================================
+         * 🌐 4. みんなのボード リアルタイム同期 (Public Board Sync)
+         * ==========================================================================
+         */
+        function startPublicBoardSync() {
+            if(!STATE.currentLessonId) return;
+            stopPublicBoardSync(); // 念のため既存のリスナーを解除
+            
+            // Firebaseの public_boards/<lessonId> パスを監視
+            STATE.publicBoardRef = db.ref('public_boards/' + STATE.currentLessonId);
+            
+            // 初期読み込み ＆ 新規追加の監視
+            STATE.publicBoardRef.on('child_added', snap => {
+                const data = snap.val();
+                renderPublicCard(snap.key, data);
+            });
+            
+            // 削除の監視（先生がリセットした時など）
+            STATE.publicBoardRef.on('child_removed', snap => {
+                const cardEl = document.getElementById('public-card-' + snap.key);
+                if(cardEl) cardEl.remove();
+            });
+        }
+        
+        function stopPublicBoardSync() {
+            if(STATE.publicBoardRef) {
+                STATE.publicBoardRef.off();
+                STATE.publicBoardRef = null;
+            }
         }
 
-        function initLiveMonitorData() {
+        function renderPublicCard(key, data) {
+            // すでに存在する場合はスキップ
+            if(document.getElementById('public-card-' + key)) return;
+            
+            const wrapper = document.createElement('div');
+            wrapper.id = 'public-card-' + key;
+            // 画面の中央付近に配置されるように調整（他人のカードと重ならないよう少しずらす）
+            const randomOffset = Math.floor(Math.random() * 50) - 25;
+            // ビューポートの中央の論理座標を計算（簡易的に固定値＋ランダムで対応）
+            const centerX = 1500 + randomOffset;
+            const centerY = 1500 + randomOffset;
+            
+            wrapper.style.position = 'absolute';
+            wrapper.style.left = centerX + 'px';
+            wrapper.style.top = centerY + 'px';
+            wrapper.style.zIndex = ++STATE.zIndexCounter;
+            
+            // HTMLの復元
+            wrapper.innerHTML = data.html;
+            
+            // 復元したカードから「選択状態」「編集状態」などのクラスを剥奪
+            const cardEl = wrapper.querySelector('.card');
+            if(cardEl) {
+                cardEl.classList.remove('selected', 'active-edit');
+                cardEl.classList.add('syncing'); // 到着アニメーション
+                setTimeout(() => cardEl.classList.remove('syncing'), 1500);
+                
+                // 動かせないようにする or コピーして自分のものにできるようにする
+                // みんなのボードのカードは「閲覧専用」にする
+                cardEl.style.pointerEvents = 'none';
+            }
+            
+            UI.minnaBoard.appendChild(wrapper);
+        }
+
+        function clearPublicBoard() {
+            if(confirm("⚠️ 本当に「みんなのボード」を真っ白にしますか？\n（現在同期されているすべてのカードが消えます）")) {
+                db.ref('public_boards/' + STATE.currentLessonId).remove().then(() => {
+                    showToast("🗑️ みんなのボードをリセットしました");
+                });
+            }
+        }
+
+        /** * ==========================================================================
+         * 🃏 5. カードエンジンのコア処理 (Card Creation & Drag & Multi-Select)
+         * ==========================================================================
+         */
+        
+        /**
+         * ボード上に新しいカードを生成する
+         */
+        function createNewCardOnBoard(x = null, y = null) {
+            const card = document.createElement('div');
+            card.className = 'card';
+            const cardId = 'card_' + Date.now() + '_' + Math.floor(Math.random()*1000);
+            card.dataset.id = cardId;
+            
+            // 配置位置の計算（引数がなければビューのほぼ中央）
+            card.style.left = (x || (1500 + window.innerWidth/3)) + 'px';
+            card.style.top = (y || (1500 + window.innerHeight/3)) + 'px';
+            card.style.zIndex = ++STATE.zIndexCounter;
+
+            card.innerHTML = `
+                <div class="card-header">
+                    <span>カード</span>
+                    <span style="cursor:pointer; color:var(--danger-color);" onclick="deleteCard('${cardId}', event)">✖</span>
+                </div>
+                <div class="card-content">
+                    <div class="card-inner-text"></div>
+                </div>
+                <div class="card-author-footer">👤 ${STATE.user.displayName || 'あなた'}</div>
+            `;
+            
+            UI.myBoard.appendChild(card);
+            bindCardEvents(card);
+            
+            // 作成後、即座に全画面エディタを開く
+            openFullscreenEditor(card);
+            saveHistory();
+        }
+
+        /**
+         * カードに対するイベント（クリック、ダブルクリック、ドラッグ）をバインド
+         */
+        function bindCardEvents(card) {
+            const cardId = card.dataset.id;
+            
+            // 👆 シングルタップ（選択 / リンク接続）
+            card.onclick = (e) => {
+                e.stopPropagation();
+                
+                // リンクモード中なら接続処理
+                if (STATE.isLinkMode && STATE.linkingSourceId) {
+                    if (STATE.linkingSourceId !== cardId) {
+                        const exists = STATE.cardLinks.some(l => l.from === STATE.linkingSourceId && l.to === cardId);
+                        if (!exists) { 
+                            STATE.cardLinks.push({ from: STATE.linkingSourceId, to: cardId }); 
+                            drawLinks(); 
+                            showToast("🔗 カードを矢印でつなぎました！"); 
+                        }
+                    }
+                    toggleLinkMode(); // 1回繋いだらリンクモード終了
+                    clearSelection();
+                    return;
+                }
+
+                // 通常の選択処理（Shiftキーで複数選択）
+                if (!e.shiftKey) {
+                    // Shiftを押していなければ他の選択を解除
+                    clearSelection(null, true);
+                }
+                
+                card.classList.add('selected');
+                STATE.selectedCards.add(card);
+                card.style.zIndex = ++STATE.zIndexCounter;
+            };
+
+            // ✌️ ダブルタップ（全画面編集）
+            card.ondblclick = (e) => {
+                e.stopPropagation();
+                openFullscreenEditor(card);
+            };
+
+            // ✋ ドラッグ処理の実装
+            let isDragging = false;
+            let startPos = {x:0, y:0};
+            
+            const startDrag = (e) => {
+                if (e.target.tagName === 'SPAN' && e.target.innerText === '✖') return; // 削除ボタンは無視
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // ドラッグ開始時に、そのカードが選択されていなければ、それを単一選択する
+                if (!STATE.selectedCards.has(card)) {
+                    if(!e.shiftKey) clearSelection(null, true);
+                    card.classList.add('selected');
+                    STATE.selectedCards.add(card);
+                }
+                
+                // 選択されているすべてのカードのz-indexを上げる
+                STATE.selectedCards.forEach(c => c.style.zIndex = ++STATE.zIndexCounter);
+                
+                isDragging = true;
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX; 
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                startPos = { x: clientX, y: clientY };
+                
+                document.addEventListener('mousemove', moveDrag, { passive: false });
+                document.addEventListener('mouseup', endDrag);
+                document.addEventListener('touchmove', moveDrag, { passive: false });
+                document.addEventListener('touchend', endDrag);
+            };
+            
+            const moveDrag = (ev) => {
+                if(!isDragging) return;
+                ev.preventDefault();
+                const moveX = ev.touches ? ev.touches[0].clientX : ev.clientX; 
+                const moveY = ev.touches ? ev.touches[0].clientY : ev.clientY;
+                
+                // ズーム率を考慮した移動量
+                const deltaX = (moveX - startPos.x) / STATE.currentZoom;
+                const deltaY = (moveY - startPos.y) / STATE.currentZoom;
+                
+                startPos = { x: moveX, y: moveY };
+                
+                // 選択されている「すべてのカード」を同時に動かす
+                STATE.selectedCards.forEach(c => {
+                    c.style.left = (c.offsetLeft + deltaX) + "px";
+                    c.style.top = (c.offsetTop + deltaY) + "px";
+                });
+                
+                drawLinks(); // 矢印の追従
+            };
+            
+            const endDrag = () => {
+                isDragging = false;
+                document.removeEventListener('mousemove', moveDrag); 
+                document.removeEventListener('mouseup', endDrag); 
+                document.removeEventListener('touchmove', moveDrag); 
+                document.removeEventListener('touchend', endDrag); 
+                saveHistory();
+            };
+
+            card.addEventListener('mousedown', startDrag);
+            card.addEventListener('touchstart', startDrag, { passive: false });
+        }
+
+        // 削除処理
+        function deleteCard(cardId, event) {
+            event.stopPropagation(); 
+            const card = document.querySelector(`[data-id="${cardId}"]`);
+            if (card) { 
+                card.remove(); 
+                // 関連するリンクも削除
+                STATE.cardLinks = STATE.cardLinks.filter(l => l.from !== cardId && l.to !== cardId); 
+                drawLinks(); 
+                STATE.selectedCards.delete(card);
+                saveHistory(); 
+            }
+        }
+
+        // 背景クリックで選択解除など
+        function clearSelection(e, preserveLinkMode = false) {
+            if(!e || (e.target.id === 'board-container' || e.target.id === 'board-content' || e.target.id === 'drawing-layer' || e.target.id === 'link-layer')) {
+                STATE.selectedCards.forEach(c => c.classList.remove('selected'));
+                STATE.selectedCards.clear();
+                
+                if(!preserveLinkMode && STATE.isLinkMode) {
+                    toggleLinkMode(); // 背景クリックでリンクモードも解除
+                }
+            }
+        }
+
+        /** * ==========================================================================
+         * 🔗 6. 矢印リンク（カードの連結）機能
+         * ==========================================================================
+         */
+        function toggleLinkMode() {
+            STATE.isLinkMode = !STATE.isLinkMode;
+            const btn = document.getElementById('btn-tool-link');
+            if(STATE.isLinkMode) {
+                btn.style.background = 'var(--primary-dark)';
+                btn.style.color = 'white';
+                
+                // 選択中のカードがあれば、それを起点にする
+                if(STATE.selectedCards.size === 1) {
+                    STATE.linkingSourceId = Array.from(STATE.selectedCards)[0].dataset.id;
+                    showToast("🔗 次につなげたいカードをタップしてください");
+                } else {
+                    STATE.linkingSourceId = null;
+                    showToast("🔗 まず「元」になるカードをタップしてください");
+                }
+            } else {
+                btn.style.background = '#fff';
+                btn.style.color = 'var(--primary-color)';
+                STATE.linkingSourceId = null;
+            }
+        }
+
+        function drawLinks() {
+            ctxLink.clearRect(0, 0, 5000, 5000);
+            ctxLink.strokeStyle = '#e67e22'; 
+            ctxLink.lineWidth = 6; 
+            ctxLink.lineCap = 'round';
+            ctxLink.lineJoin = 'round';
+            
+            STATE.cardLinks.forEach(link => {
+                const fromEl = document.querySelector(`[data-id="${link.from}"]`); 
+                const toEl = document.querySelector(`[data-id="${link.to}"]`);
+                if (fromEl && toEl) {
+                    // カードの中心座標を取得
+                    const fromX = fromEl.offsetLeft + fromEl.offsetWidth / 2;
+                    const fromY = fromEl.offsetTop + fromEl.offsetHeight / 2;
+                    const toX = toEl.offsetLeft + toEl.offsetWidth / 2;
+                    const toY = toEl.offsetTop + toEl.offsetHeight / 2;
+                    
+                    // 線を引く
+                    ctxLink.beginPath(); 
+                    ctxLink.moveTo(fromX, fromY); 
+                    ctxLink.lineTo(toX, toY); 
+                    ctxLink.stroke();
+                    
+                    // 矢印の頭を描画
+                    const angle = Math.atan2(toY - fromY, toX - fromX);
+                    const headLen = 20;
+                    ctxLink.fillStyle = '#e67e22'; 
+                    ctxLink.beginPath(); 
+                    ctxLink.moveTo(toX, toY);
+                    ctxLink.lineTo(toX - headLen * Math.cos(angle - Math.PI / 6), toY - headLen * Math.sin(angle - Math.PI / 6));
+                    ctxLink.lineTo(toX - headLen * Math.cos(angle + Math.PI / 6), toY - headLen * Math.sin(angle + Math.PI / 6)); 
+                    ctxLink.fill();
+                }
+            });
+        }
+
+        /**
+         * 指定されたカードと矢印で繋がっている全てのカードを取得する（グラフ探索）
+         */
+        function getConnectedCards(startCard) {
+            const connectedSet = new Set();
+            const queue = [startCard.dataset.id];
+            
+            while(queue.length > 0) {
+                const currentId = queue.shift();
+                const cardEl = document.querySelector(`[data-id="${currentId}"]`);
+                if(cardEl) connectedSet.add(cardEl);
+                
+                // linksから関連するIDを探す
+                STATE.cardLinks.forEach(l => {
+                    if (l.from === currentId && !connectedSet.has(document.querySelector(`[data-id="${l.to}"]`))) {
+                        queue.push(l.to);
+                    }
+                    if (l.to === currentId && !connectedSet.has(document.querySelector(`[data-id="${l.from}"]`))) {
+                        queue.push(l.from);
+                    }
+                });
+            }
+            return connectedSet;
+        }
+
+        /** * ==========================================================================
+         * ✏️ 7. 全画面カード作成エディタ (Full-Screen Editor)
+         * ==========================================================================
+         */
+        const editorModal = document.getElementById('fullscreen-editor-modal');
+        const editorTextarea = document.getElementById('editor-textarea');
+        const editorMedia = document.getElementById('editor-media-container');
+        const editorCanvas = document.getElementById('editor-drawing-canvas');
+        const eCtx = editorCanvas.getContext('2d');
+        let isEditorPenMode = false;
+        let isEditorDrawing = false;
+
+        function openFullscreenEditor(card) {
+            STATE.editingCardId = card.dataset.id;
+            
+            // カードの色をエディタに反映
+            const megaCard = document.getElementById('editor-mega-card');
+            megaCard.style.backgroundColor = card.style.backgroundColor || 'var(--card-bg)';
+            
+            // テキストの復元
+            const textEl = card.querySelector('.card-inner-text');
+            editorTextarea.value = textEl ? textEl.innerText : '';
+            
+            // メディア（画像等）の復元
+            editorMedia.innerHTML = '';
+            const imgs = card.querySelectorAll('.card-inner-image');
+            imgs.forEach(img => {
+                const clone = img.cloneNode(true);
+                editorMedia.appendChild(clone);
+            });
+
+            // キャンバスのサイズをmegaCardに合わせる
+            setTimeout(() => {
+                editorCanvas.width = megaCard.clientWidth;
+                editorCanvas.height = megaCard.clientHeight;
+                eCtx.lineCap = 'round';
+                eCtx.lineJoin = 'round';
+                eCtx.lineWidth = 6;
+                eCtx.strokeStyle = '#e74c3c';
+            }, 10);
+
+            editorModal.style.display = 'flex';
+        }
+
+        function closeFullscreenEditor() {
+            editorModal.style.display = 'none';
+            STATE.editingCardId = null;
+            if(isEditorPenMode) toggleEditorPen(); // ペンモード解除
+        }
+
+        // 保存してボードに反映
+        function saveFullscreenEditor() {
+            if(!STATE.editingCardId) return closeFullscreenEditor();
+            
+            const card = document.querySelector(`[data-id="${STATE.editingCardId}"]`);
+            if(card) {
+                const contentDiv = card.querySelector('.card-content');
+                contentDiv.innerHTML = ''; // クリア
+                
+                // 1. 画像の反映
+                const imgs = editorMedia.querySelectorAll('img');
+                imgs.forEach(img => {
+                    const clone = img.cloneNode(true);
+                    contentDiv.appendChild(clone);
+                });
+                
+                // 2. ペン描画の反映（Canvasを画像化して追加）
+                // 描画が存在するか簡易チェック（ピクセルデータが空でないか）
+                const blank = document.createElement('canvas');
+                blank.width = editorCanvas.width;
+                blank.height = editorCanvas.height;
+                if(editorCanvas.toDataURL() !== blank.toDataURL()) {
+                    const drawnImg = document.createElement('img');
+                    drawnImg.src = editorCanvas.toDataURL();
+                    drawnImg.className = 'card-inner-image';
+                    // 背景を透過して重ねる
+                    drawnImg.style.position = 'absolute';
+                    drawnImg.style.top = '0'; drawnImg.style.left = '0';
+                    drawnImg.style.width = '100%'; drawnImg.style.height = '100%';
+                    drawnImg.style.pointerEvents = 'none'; // テキスト選択を邪魔しない
+                    contentDiv.appendChild(drawnImg);
+                }
+
+                // 3. テキストの反映
+                const textDiv = document.createElement('div');
+                textDiv.className = 'card-inner-text';
+                textDiv.innerText = editorTextarea.value;
+                contentDiv.appendChild(textDiv);
+                
+                // 4. 背景色の反映
+                card.style.backgroundColor = document.getElementById('editor-mega-card').style.backgroundColor;
+                
+                saveHistory();
+            }
+            closeFullscreenEditor();
+        }
+
+        // --- エディタ用ツール群 ---
+        function toggleEditorPen() {
+            isEditorPenMode = !isEditorPenMode;
+            const btn = document.getElementById('editor-pen-btn');
+            if(isEditorPenMode) {
+                btn.classList.add('active');
+                editorCanvas.style.pointerEvents = 'auto'; // キャンバス有効化
+                editorTextarea.style.pointerEvents = 'none'; // テキスト無効化
+            } else {
+                btn.classList.remove('active');
+                editorCanvas.style.pointerEvents = 'none';
+                editorTextarea.style.pointerEvents = 'auto';
+            }
+        }
+
+        // ペン描画イベント
+        function getEditorMousePos(e) {
+            const rect = editorCanvas.getBoundingClientRect();
+            const cx = e.touches ? e.touches[0].clientX : e.clientX; 
+            const cy = e.touches ? e.touches[0].clientY : e.clientY; 
+            return { x: cx - rect.left, y: cy - rect.top }; 
+        }
+        editorCanvas.addEventListener('mousedown', e => { if(!isEditorPenMode) return; isEditorDrawing = true; eCtx.beginPath(); eCtx.moveTo(getEditorMousePos(e).x, getEditorMousePos(e).y); e.preventDefault();});
+        editorCanvas.addEventListener('mousemove', e => { if(!isEditorDrawing || !isEditorPenMode) return; const p = getEditorMousePos(e); eCtx.lineTo(p.x, p.y); eCtx.stroke(); e.preventDefault();});
+        editorCanvas.addEventListener('mouseup', () => { isEditorDrawing = false; });
+        
+        editorCanvas.addEventListener('touchstart', e => { if(!isEditorPenMode) return; isEditorDrawing = true; eCtx.beginPath(); eCtx.moveTo(getEditorMousePos(e).x, getEditorMousePos(e).y); e.preventDefault();}, {passive:false});
+        editorCanvas.addEventListener('touchmove', e => { if(!isEditorDrawing || !isEditorPenMode) return; const p = getEditorMousePos(e); eCtx.lineTo(p.x, p.y); eCtx.stroke(); e.preventDefault();}, {passive:false});
+        editorCanvas.addEventListener('touchend', () => { isEditorDrawing = false; });
+
+        function insertLinkToEditor() {
+            const url = prompt("挿入するリンクのURLを入力してください（http://...）");
+            if(url) {
+                editorTextarea.value += `\n${url}\n`;
+            }
+        }
+
+        function handleEditorImageUpload(event) {
+            if (event.target.files && event.target.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    editorMedia.appendChild(img);
+                };
+                reader.readAsDataURL(event.target.files[0]);
+            }
+            event.target.value = ''; // リセット
+        }
+
+        function changeEditorColor() {
+            const mega = document.getElementById('editor-mega-card');
+            const colors = ['var(--card-bg)', '#ffcdd2', '#c8e6c9', '#bbdefb', '#ffffff'];
+            // 現在の背景色から次の色を決定（簡易実装）
+            let i = Math.floor(Math.random() * colors.length);
+            mega.style.backgroundColor = colors[i];
+        }
+
+        /** * ==========================================================================
+         * 📤 8. 提出ボックス & みんなのボードへの送信 (Group Submission)
+         * ==========================================================================
+         */
+        function submitSelectedCards() {
+            if (STATE.selectedCards.size === 0) return alert("提出するカードを選択してください！\n（Shiftキーで複数選択できます）");
+            
+            // 選択されたカードから「繋がっている全てのカード」を抽出
+            let finalSet = new Set();
+            STATE.selectedCards.forEach(c => {
+                const connected = getConnectedCards(c);
+                connected.forEach(cc => finalSet.add(cc));
+            });
+
+            // 提出用データを作成
+            let submissionHtml = "";
+            finalSet.forEach(card => {
+                // クローンを作成して絶対座標を取り除き、提出用に見やすく並べる
+                const clone = card.cloneNode(true);
+                clone.style.position = 'relative';
+                clone.style.left = '0';
+                clone.style.top = '0';
+                clone.style.margin = '10px auto';
+                clone.classList.remove('selected');
+                submissionHtml += clone.outerHTML;
+            });
+
+            db.ref('submissions/' + STATE.currentLessonId + '/' + STATE.user.uid).push({ 
+                sender: STATE.user.displayName, 
+                html: submissionHtml, 
+                timestamp: Date.now() 
+            }).then(() => { 
+                showToast(`📥 選択したカード（計${finalSet.size}枚）を提出しました！`); 
+                clearSelection(); 
+            });
+        }
+
+        function sendSelectedCardsToPublic() {
+            if (STATE.selectedCards.size === 0) return alert("共有するカードを選択してください！");
+            
+            let finalSet = new Set();
+            STATE.selectedCards.forEach(c => {
+                const connected = getConnectedCards(c);
+                connected.forEach(cc => finalSet.add(cc));
+            });
+
+            let syncPromises = [];
+            finalSet.forEach(card => {
+                const clone = card.cloneNode(true);
+                clone.classList.remove('selected');
+                
+                // みんなのボード用DBに送信
+                const p = db.ref('public_boards/' + STATE.currentLessonId).push({
+                    html: clone.outerHTML,
+                    senderName: STATE.user.displayName,
+                    timestamp: Date.now()
+                });
+                syncPromises.push(p);
+            });
+
+            Promise.all(syncPromises).then(() => {
+                showToast(`🌍 みんなのボードに共有しました！`); 
+                clearSelection();
+            });
+        }
+
+        /** * ==========================================================================
+         * 📥 9. 提出物一覧と相互評価（いいね！） (Submissions Viewer)
+         * ==========================================================================
+         */
+        function openSubmissionModal() {
+            if (!STATE.currentLessonId) return alert("ノートに入ってから開いてください");
+            document.getElementById('submission-modal').style.display = 'flex';
+            const container = document.getElementById('submission-container'); 
+            container.innerHTML = '<p style="color:#aaa; font-size:18px;">⏳ データを読み込んでいます...</p>';
+            
+            db.ref('submissions/' + STATE.currentLessonId).on('value', snap => {
+                container.innerHTML = ''; 
+                let hasSubmissions = false;
+                
+                if (snap.exists()) {
+                    snap.forEach(userSnap => {
+                        const userId = userSnap.key;
+                        userSnap.forEach(cardSnap => {
+                            hasSubmissions = true; 
+                            const cardData = cardSnap.val(); 
+                            const cardKey = cardSnap.key;
+                            
+                            let likeCount = cardData.likes ? Object.keys(cardData.likes).length : 0; 
+                            const isLikedByMe = cardData.likes && cardData.likes[STATE.user.uid];
+                            
+                            const wrapper = document.createElement('div'); 
+                            wrapper.style = "background:white; border:3px solid var(--card-border); border-radius:15px; padding:15px; box-shadow:0 6px 15px rgba(0,0,0,0.08); display:flex; flex-direction:column; height:300px; overflow:hidden;";
+                            
+                            wrapper.innerHTML = `
+                                <div style="font-weight:bold; color:var(--primary-dark); border-bottom:2px solid var(--card-border); padding-bottom:8px; margin-bottom:12px; font-size:16px;">
+                                    👤 ${cardData.sender || '生徒'}
+                                </div>
+                                <div style="flex:1; overflow-y:auto; background:var(--board-bg); border-radius:10px; border:1px solid #eee; padding:10px;">
+                                    ${cardData.html}
+                                </div>
+                                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:12px; padding-top:10px; border-top:1px dashed #eee;">
+                                    <span style="font-size:12px; color:#aaa;">${new Date(cardData.timestamp).toLocaleTimeString()}</span>
+                                    <button class="btn-base" style="margin:0; padding:6px 15px; font-size:14px; background:${isLikedByMe ? 'var(--danger-color)':'#fff'}; color:${isLikedByMe ? '#fff':'var(--danger-color)'}; border-color:var(--danger-color);" onclick="toggleLike('${userId}', '${cardKey}', event)">
+                                        ${isLikedByMe ? '❤️' : '♡'} いいね！ (${likeCount})
+                                    </button>
+                                </div>
+                            `;
+                            container.appendChild(wrapper);
+                        });
+                    });
+                }
+                if (!hasSubmissions) container.innerHTML = '<p style="color:#888; font-size:18px; text-align:center; grid-column:1/-1; padding-top:40px;">📭 まだ誰も提出していません。</p>';
+            });
+        }
+
+        function toggleLike(userId, cardKey, event) { 
+            event.stopPropagation(); 
+            const likeRef = db.ref(`submissions/${STATE.currentLessonId}/${userId}/${cardKey}/likes/${STATE.user.uid}`); 
+            likeRef.once('value', snap => { 
+                if (snap.exists()) likeRef.remove(); 
+                else likeRef.set(true); 
+            }); 
+        }
+
+        /** * ==========================================================================
+         * 👀 10. LIVEモニタリング ＆ 先生の画面共有 (Monitoring & Screen Share)
+         * ==========================================================================
+         */
+        
+        // 🖥️ 先生の画面共有
+        function listenToScreenShare() {
+            db.ref('shared_screen').on('value', snap => {
+                const overlay = document.getElementById('screen-share-overlay');
+                const img = document.getElementById('shared-screen-img');
+                
+                // 生徒側でのみ表示、かつ、現在の授業(Lesson)に一致するものが共有されていれば表示
+                // ※簡易的に全体共有として実装
+                if(snap.exists() && !STATE.isTeacher) {
+                    const data = snap.val();
+                    if(data.teacher && data.teacher.image && (Date.now() - data.teacher.timestamp < 10000)) {
+                        img.src = data.teacher.image;
+                        overlay.style.display = 'flex';
+                    } else {
+                        overlay.style.display = 'none';
+                    }
+                } else {
+                    overlay.style.display = 'none';
+                }
+            });
+        }
+
+        function shareScreenLoop() {
+            if(!STATE.isTeacher || !document.getElementById('teacher-controls-app').style.display) return;
+            if(!document.hidden) {
+                html2canvas(document.body, { scale: 0.3, useCORS: true, logging: false }).then(canvas => {
+                    db.ref('shared_screen/teacher').set({
+                        image: canvas.toDataURL('image/jpeg', 0.5), timestamp: Date.now()
+                    });
+                    STATE.shareTimeout = setTimeout(shareScreenLoop, 2000);
+                }).catch(e => {
+                    STATE.shareTimeout = setTimeout(shareScreenLoop, 2000);
+                });
+            } else {
+                STATE.shareTimeout = setTimeout(shareScreenLoop, 2000);
+            }
+        }
+
+        function toggleScreenShare() {
+            const btns = document.querySelectorAll('button[onclick="toggleScreenShare()"]');
+            if(STATE.shareTimeout) {
+                // 停止
+                clearTimeout(STATE.shareTimeout);
+                STATE.shareTimeout = null;
+                db.ref('shared_screen/teacher').remove();
+                showToast("🖥️ 画面共有を終了しました");
+                btns.forEach(b => { b.style.background = '#f39c12'; b.innerText = '🖥️ 画面共有を開始'; });
+            } else {
+                // 開始
+                showToast("🖥️ 画面共有を開始しました（生徒へ送信中...）");
+                shareScreenLoop();
+                btns.forEach(b => { b.style.background = '#e74c3c'; b.innerText = '⏹️ 共有を停止'; });
+            }
+        }
+
+        // 👀 LIVEモニタリング
+        function openLiveMonitorWindow() {
+            // パラメータに現在のlessonIdを付与して別窓で開く
+            const lid = STATE.currentLessonId || 'home';
+            window.open(window.location.href.split('?')[0] + '?monitor=true&lessonId=' + lid, '_blank', 'width=1200,height=800');
+        }
+
+        function initLiveMonitorData(lessonId) {
+            document.getElementById('monitor-lesson-name').innerText = "対象: " + (lessonId === 'home' ? 'ホーム画面' : '授業ノート');
+            
             db.ref('students').on('value', snap => {
                 const grid = document.getElementById('monitor-grid');
                 grid.innerHTML = ''; 
@@ -386,6 +1867,7 @@
                     }
                 });
 
+                // lessonIdでフィルタリングして監視
                 db.ref('monitor_screens').on('value', monitorSnap => {
                     studentList.forEach(student => {
                         const data = monitorSnap.child(student.uid).val(); 
@@ -394,8 +1876,8 @@
                             const img = document.getElementById('img-' + student.uid); 
                             const offlineText = document.getElementById('status-' + student.uid);
                             
-                            // 更新が10秒以内の場合
-                            if (data && (Date.now() - data.timestamp < 10000)) { 
+                            // 該当の授業にいる、かつ更新が10秒以内の場合
+                            if (data && data.lessonId === lessonId && (Date.now() - data.timestamp < 10000)) { 
                                 if (data.status === 'hidden') {
                                     offlineText.style.display = 'flex'; 
                                     offlineText.innerText = '別タブ閲覧中';
@@ -403,19 +1885,12 @@
                                     img.src = '';
                                 } else {
                                     offlineText.style.display = 'none'; 
-                                    if(data.image) {
-                                        img.src = data.image; 
-                                    } else {
-                                        img.src = '';
-                                        offlineText.style.display = 'flex';
-                                        offlineText.innerText = '処理中...';
-                                        offlineText.style.color = '#fff';
-                                    }
+                                    if(data.image) img.src = data.image; 
                                 }
                             } else { 
                                 offlineText.style.display = 'flex'; 
                                 offlineText.innerText = 'モニタリング外';
-                                offlineText.style.color = '#e74c3c';
+                                offlineText.style.color = 'var(--danger-color)';
                                 img.src = ''; 
                             }
                         }
@@ -424,310 +1899,184 @@
             });
         }
 
-        // 🚀 【重要】フリーズを防止する「安全な再帰ループ処理」に変更
         function captureScreen() {
-            if (!currentLessonId) return;
+            if (!STATE.user) return;
+            const targetEl = document.getElementById('app-screen').style.display === 'flex' ? document.getElementById('board-content') : document.body;
+            const currentLid = STATE.currentLessonId || 'home';
             
             if (!document.hidden) {
-                // useCORS: true で外部画像によるセキュリティエラーを回避
-                html2canvas(document.getElementById('board-content'), { scale: 0.2, useCORS: true, logging: false }).then(canvas => {
-                    db.ref('monitor_screens/' + currentUser.uid).update({
-                        name: currentUser.displayName,
-                        image: canvas.toDataURL('image/jpeg', 0.4),
+                html2canvas(targetEl, { scale: 0.15, useCORS: true, logging: false }).then(canvas => {
+                    db.ref('monitor_screens/' + STATE.user.uid).update({
+                        name: STATE.user.displayName,
+                        image: canvas.toDataURL('image/jpeg', 0.3),
                         timestamp: Date.now(),
+                        lessonId: currentLid,
                         status: 'active'
                     });
-                    captureTimeout = setTimeout(captureScreen, 2000); // 処理が完了してから次をセット
+                    STATE.captureTimeout = setTimeout(captureScreen, 3000); 
                 }).catch(err => {
-                    db.ref('monitor_screens/' + currentUser.uid).update({ timestamp: Date.now(), status: 'active', error: true });
-                    captureTimeout = setTimeout(captureScreen, 2000);
+                    db.ref('monitor_screens/' + STATE.user.uid).update({ timestamp: Date.now(), lessonId: currentLid, status: 'active' });
+                    STATE.captureTimeout = setTimeout(captureScreen, 3000);
                 });
             } else {
-                // 別のタブを見ているときは status: 'hidden' を送信
-                db.ref('monitor_screens/' + currentUser.uid).update({ 
-                    timestamp: Date.now(),
-                    status: 'hidden'
-                });
-                captureTimeout = setTimeout(captureScreen, 2000);
+                db.ref('monitor_screens/' + STATE.user.uid).update({ timestamp: Date.now(), lessonId: currentLid, status: 'hidden' });
+                STATE.captureTimeout = setTimeout(captureScreen, 3000);
             }
         }
 
         function startScreenCaptureLoop() {
-            if(captureTimeout) clearTimeout(captureTimeout);
+            if(STATE.captureTimeout) clearTimeout(STATE.captureTimeout);
             captureScreen();
         }
 
-        // ==========================================
-        // 🖥️ 5. 先生の画面共有（安全ループ版）
-        // ==========================================
-        let isSharing = false;
-        let shareTimeout;
+
+        /** * ==========================================================================
+         * 🤏 11. ズーム・パン・履歴・各種ユーティリティ
+         * ==========================================================================
+         */
         
-        function shareScreenLoop() {
-            if(!isSharing) return;
-            if(!document.hidden) {
-                html2canvas(document.getElementById('app-screen'), { scale: 0.3, useCORS: true, logging: false }).then(canvas => {
-                    db.ref('shared_screen/teacher').set({
-                        image: canvas.toDataURL('image/jpeg', 0.5), timestamp: Date.now()
-                    });
-                    shareTimeout = setTimeout(shareScreenLoop, 2000);
-                }).catch(e => {
-                    shareTimeout = setTimeout(shareScreenLoop, 2000);
-                });
-            } else {
-                shareTimeout = setTimeout(shareScreenLoop, 2000);
-            }
+        // ズーム機能
+        function applyZoomFromDropdown() { 
+            const val = document.getElementById('zoom-select').value; 
+            if(val !== 'custom') { 
+                STATE.currentZoom = parseFloat(val); 
+                UI.boardContent.style.transform = `scale(${STATE.currentZoom})`; 
+                drawLinks(); 
+            } 
+        }
+        function syncZoomSelect() { 
+            UI.boardContent.style.transform = `scale(${STATE.currentZoom})`; 
+            const select = document.getElementById('zoom-select');
+            const customOpt = document.getElementById('custom-zoom-option'); 
+            customOpt.text = `🔍 ${Math.round(STATE.currentZoom * 100)}%`; 
+            customOpt.value = "custom"; 
+            customOpt.style.display = 'block'; 
+            select.value = "custom"; 
+            drawLinks(); 
         }
 
-        function toggleScreenShare() {
-            isSharing = !isSharing;
-            if(isSharing) {
-                showToast("🖥️ 画面共有を開始しました（送信中...）");
-                shareScreenLoop();
-            } else {
-                clearTimeout(shareTimeout);
-                db.ref('shared_screen/teacher').remove();
-                showToast("🖥️ 画面共有を終了しました");
-            }
-        }
+        // ホイールによるズーム
+        UI.boardContainer.addEventListener('wheel', (e) => { 
+            if (e.ctrlKey || e.metaKey) { 
+                e.preventDefault(); 
+                STATE.currentZoom -= e.deltaY * 0.002; 
+                STATE.currentZoom = Math.min(Math.max(0.25, STATE.currentZoom), 3.0); 
+                syncZoomSelect(); 
+            } 
+        }, {passive: false});
 
-        // ==========================================
-        // 🃏 6. カードの作成・移動・編集・矢印リンク
-        // ==========================================
-        let zIndexCounter = 10;
-        let isPenMode = false;
-
-        function addCard() {
-            const board = document.querySelector('.board-area.active');
-            const card = document.createElement('div');
-            card.className = 'card';
-            const cardId = 'card_' + Date.now() + '_' + Math.floor(Math.random()*1000);
-            card.dataset.id = cardId;
-            card.style.left = (Math.random() * 200 + window.innerWidth/3) + 'px';
-            card.style.top = (Math.random() * 100 + window.innerHeight/3) + 'px';
-            card.style.zIndex = ++zIndexCounter;
-
-            card.onclick = (e) => {
-                e.stopPropagation();
-                if (linkingSourceId) {
-                    if (linkingSourceId !== card.dataset.id) {
-                        const exists = cardLinks.some(l => l.from === linkingSourceId && l.to === card.dataset.id);
-                        if (!exists) { cardLinks.push({ from: linkingSourceId, to: card.dataset.id }); drawLinks(); showToast("🔗 カードを矢印でつなぎました！"); }
-                        linkingSourceId = null; clearSelection(); return;
-                    } else { linkingSourceId = null; }
-                }
-                clearSelection(e); card.classList.add('selected'); selectedCard = card; card.style.zIndex = ++zIndexCounter;
-            };
-
-            card.ondblclick = (e) => {
-                e.stopPropagation(); clearSelection(e); card.classList.add('active-edit'); card.style.zIndex = ++zIndexCounter;
-            };
-
-            card.innerHTML = `
-                <div class="card-edit-toolbar">
-                    <button class="c-tool-btn" title="つなぐ" onclick="startLinking('${cardId}', event)">🔗</button>
-                    <button class="c-tool-btn" title="画像を追加" onclick="triggerCardImage(this, event)">📷</button>
-                    <input type="file" accept="image/*" style="display:none;" onchange="loadCardImage(this, event)">
-                    <button class="c-tool-btn" title="ペン" onclick="toggleCardPen(this, event)">🖋️</button>
-                    <button class="c-tool-btn" title="色" onclick="changeCardColor(this, event)">🎨</button>
-                    <button class="c-tool-btn" title="削除" style="color:#e74c3c;" onclick="deleteCard('${cardId}', this, event)">🗑️</button>
-                </div>
-                <div class="card-header"><span>カード</span> <span style="cursor:pointer; color:#e74c3c;" onclick="deleteCard('${cardId}', this, event)">✖</span></div>
-                <div class="card-content"><div class="card-inner-item"><textarea placeholder="文字を入力..."></textarea></div></div>
-            `;
-            board.appendChild(card);
-            
-            makeDraggable(card, card.querySelector('.card-header'));
-            makeDraggable(card.querySelector('.card-inner-item'), card.querySelector('.card-inner-item'));
-            card.click(); saveHistory();
-        }
-
-        function makeDraggable(el, handle) {
-            const startDrag = (e) => {
-                if (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT') return;
-                const targetCard = el.classList.contains('card') ? el : el.closest('.card');
-                if (targetCard) targetCard.style.zIndex = ++zIndexCounter;
-                
-                const clientX = e.touches ? e.touches[0].clientX : e.clientX; const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-                let pos3 = clientX, pos4 = clientY;
-                
-                const moveDrag = (ev) => {
-                    const moveX = ev.touches ? ev.touches[0].clientX : ev.clientX; const moveY = ev.touches ? ev.touches[0].clientY : ev.clientY;
-                    let pos1 = (pos3 - moveX) / currentZoom, pos2 = (pos4 - moveY) / currentZoom;
-                    pos3 = moveX; pos4 = moveY;
-                    
-                    const moveTarget = el.classList.contains('card') ? el : targetCard;
-                    if(moveTarget) { moveTarget.style.top = (moveTarget.offsetTop - pos2) + "px"; moveTarget.style.left = (moveTarget.offsetLeft - pos1) + "px"; drawLinks(); }
-                };
-                
-                const endDrag = () => { document.removeEventListener('mousemove', moveDrag); document.removeEventListener('mouseup', endDrag); document.removeEventListener('touchmove', moveDrag); document.removeEventListener('touchend', endDrag); saveHistory(); };
-                
-                document.addEventListener('mousemove', moveDrag, { passive: false }); document.addEventListener('mouseup', endDrag);
-                document.addEventListener('touchmove', moveDrag, { passive: false }); document.addEventListener('touchend', endDrag);
-            };
-            handle.addEventListener('mousedown', (e) => { e.preventDefault(); e.stopPropagation(); startDrag(e); });
-            handle.addEventListener('touchstart', (e) => { e.stopPropagation(); startDrag(e); }, { passive: true });
-        }
-
-        function drawLinks() {
-            const lCanvas = document.getElementById('link-layer'); if (!lCanvas) return;
-            const lCtx = lCanvas.getContext('2d'); lCtx.clearRect(0, 0, 3000, 3000);
-            lCtx.strokeStyle = '#ff9800'; lCtx.lineWidth = 4; lCtx.lineCap = 'round';
-            
-            cardLinks.forEach(link => {
-                const fromEl = document.querySelector(`[data-id="${link.from}"]`); const toEl = document.querySelector(`[data-id="${link.to}"]`);
-                if (fromEl && toEl) {
-                    const fromX = fromEl.offsetLeft + fromEl.offsetWidth / 2, fromY = fromEl.offsetTop + fromEl.offsetHeight / 2;
-                    const toX = toEl.offsetLeft + toEl.offsetWidth / 2, toY = toEl.offsetTop + toEl.offsetHeight / 2;
-                    lCtx.beginPath(); lCtx.moveTo(fromX, fromY); lCtx.lineTo(toX, toY); lCtx.stroke();
-                    const angle = Math.atan2(toY - fromY, toX - fromX);
-                    lCtx.fillStyle = '#ff9800'; lCtx.beginPath(); lCtx.moveTo(toX, toY);
-                    lCtx.lineTo(toX - 15 * Math.cos(angle - Math.PI / 6), toY - 15 * Math.sin(angle - Math.PI / 6));
-                    lCtx.lineTo(toX - 15 * Math.cos(angle + Math.PI / 6), toY - 15 * Math.sin(angle + Math.PI / 6)); lCtx.fill();
-                }
-            });
-        }
-
-        function startLinking(cardId, event) { event.stopPropagation(); linkingSourceId = cardId; showToast("🔗 つなぎたい先のカードをタップしてください"); }
-        function deleteCard(cardId, btn, event) {
-            event.stopPropagation(); const card = btn.closest('.card');
-            if (card) { card.remove(); cardLinks = cardLinks.filter(l => l.from !== cardId && l.to !== cardId); drawLinks(); if (selectedCard === card) selectedCard = null; saveHistory(); }
-        }
-        function triggerCardImage(btn, event) { event.stopPropagation(); btn.nextElementSibling.click(); }
-        function loadCardImage(input, event) {
-            event.stopPropagation();
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const card = input.closest('.card'); let imgBox = card.querySelector('.card-image-box');
-                    if (!imgBox) { imgBox = document.createElement('div'); imgBox.className = 'card-image-box'; imgBox.style = "width:100%; height:70px; margin-bottom:5px; text-align:center; overflow:hidden; border-radius:8px; background:#fafafa; display:flex; justify-content:center; align-items:center; border:1px dashed #ffe082;";
-                        const content = card.querySelector('.card-content'); content.insertBefore(imgBox, content.firstChild);
-                    }
-                    imgBox.innerHTML = `<img src="${e.target.result}" style="max-width:100%; max-height:100%; object-fit:contain;">`; saveHistory();
-                };
-                reader.readAsDataURL(input.files[0]);
-            }
-        }
-        function clearSelection(e) {
-            if(!e || (e.target.id === 'board-container' || e.target.id === 'board-content' || e.target.id === 'drawing-layer' || e.target.id === 'link-layer')) {
-                document.querySelectorAll('.card').forEach(c => { c.classList.remove('selected'); c.classList.remove('active-edit'); });
-                selectedCard = null; linkingSourceId = null;
-            }
-        }
-        function toggleCardPen(btn, event) { event.stopPropagation(); togglePen(); btn.classList.toggle('active'); }
-        function changeCardColor(btn, event) {
-            event.stopPropagation(); const card = btn.closest('.card'); const colors = ['#fff9c4', '#ffcdd2', '#c8e6c9', '#bbdefb', '#ffffff'];
-            let currentColor = card.style.backgroundColor || '#fff9c4'; let nextColor = colors[(colors.indexOf(rgb2hex(currentColor)) + 1) % colors.length]; card.style.backgroundColor = nextColor || colors[1];
-        }
-        function rgb2hex(rgb) {
-            if(/^#[0-9A-F]{6}$/i.test(rgb)) return rgb.toLowerCase(); rgb = rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
-            return rgb ? "#" + ("0" + parseInt(rgb[1],10).toString(16)).slice(-2) + ("0" + parseInt(rgb[2],10).toString(16)).slice(-2) + ("0" + parseInt(rgb[3],10).toString(16)).slice(-2) : '#fff9c4';
-        }
-
-        // ==========================================
-        // 📥 7. 提出とみんなの回答一覧
-        // ==========================================
-        function submitSelectedCard() {
-            if (!selectedCard) return alert("提出するカードをタップして赤枠にしてから押してください！");
-            const ta = selectedCard.querySelector('textarea'); if (ta) ta.textContent = ta.value; 
-            db.ref('submissions/' + currentLessonId + '/' + currentUser.uid).push({ sender: currentUser.displayName, html: selectedCard.outerHTML, timestamp: Date.now() }).then(() => { showToast("📥 提出ボックスに送りました！"); clearSelection(); });
-        }
-
-        function sendSelectedToPublic() {
-            if (!selectedCard) return alert("共有するカードをタップして赤枠にしてから押してください！");
-            const ta = selectedCard.querySelector('textarea'); if (ta) ta.textContent = ta.value;
-            const minnaBoard = document.getElementById('minna-board'); const clone = selectedCard.cloneNode(true);
-            clone.classList.remove('selected'); clone.classList.remove('active-edit');
-            const author = document.createElement('div'); author.style = "position:absolute; bottom:5px; right:5px; background:rgba(255,255,255,0.8); padding:2px 5px; font-size:11px; font-weight:bold; border-radius:5px;"; author.innerText = "👤 " + currentUser.displayName; clone.appendChild(author);
-            minnaBoard.appendChild(clone); rebindCardEvents(); showToast("🌍 みんなのボードにコピーしました！"); clearSelection();
-        }
-
-        function openSubmissionModal() {
-            if (!currentLessonId) return alert("ノートに入ってから開いてください");
-            document.getElementById('submission-modal').style.display = 'flex';
-            const container = document.getElementById('submission-container'); container.innerHTML = '<p style="color:#aaa;">⏳ 提出物を読み込んでいます...</p>';
-            db.ref('submissions/' + currentLessonId).on('value', snap => {
-                container.innerHTML = ''; let hasSubmissions = false;
-                if (snap.exists()) {
-                    snap.forEach(userSnap => {
-                        const userId = userSnap.key;
-                        userSnap.forEach(cardSnap => {
-                            hasSubmissions = true; const cardData = cardSnap.val(); const cardKey = cardSnap.key;
-                            let likeCount = cardData.likes ? Object.keys(cardData.likes).length : 0; const isLikedByMe = cardData.likes && cardData.likes[currentUser.uid];
-                            const wrapper = document.createElement('div'); wrapper.style = "background:white; border:2px solid #ffe082; border-radius:15px; padding:12px; box-shadow:0 4px 10px rgba(0,0,0,0.05); display:flex; flex-direction:column; height:240px; position:relative; box-sizing:border-box;";
-                            wrapper.innerHTML = `
-                                <div style="font-weight:bold; color:#d35400; border-bottom:2px solid #ffe082; padding-bottom:5px; margin-bottom:8px; font-size:14px;">👤 ${cardData.sender || '生徒'}</div>
-                                <div style="flex:1; overflow:hidden; font-size:14px; background:#fff9c4; border-radius:8px; border:1px solid #ffca28; padding:8px; position:relative;">${extractCardContent(cardData.html)}</div>
-                                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
-                                    <span style="font-size:11px; color:#aaa;">${new Date(cardData.timestamp).toLocaleTimeString()}</span>
-                                    <button class="btn-base" style="margin:0; padding:4px 12px; font-size:12px; background:${isLikedByMe ? '#e74c3c':'#fff'}; color:${isLikedByMe ? '#fff':'#e74c3c'}; border-color:#e74c3c;" onclick="toggleLike('${userId}', '${cardKey}', event)">${isLikedByMe ? '❤️' : '♡'} いいね！ (${likeCount})</button>
-                                </div>
-                            `;
-                            container.appendChild(wrapper);
-                        });
-                    });
-                }
-                if (!hasSubmissions) container.innerHTML = '<p style="color:#888; font-size:16px; text-align:center; grid-column:1/-1; padding-top:40px;">📭 まだ誰も提出していません。</p>';
-            });
-        }
-
-        function extractCardContent(htmlStr) {
-            const doc = new DOMParser().parseFromString(htmlStr, 'text/html'); const textarea = doc.querySelector('textarea'); const img = doc.querySelector('.card-image-box img'); let result = '';
-            if (img) result += `<div style="text-align:center; height:60px; margin-bottom:5px; background:#fafafa; border-radius:5px;"><img src="${img.src}" style="max-height:100%; max-width:100%; object-fit:contain;"></div>`;
-            if (textarea) result += `<div style="white-space:pre-wrap; word-break:break-all; height:calc(100% - 65px); overflow-y:auto;">${textarea.value || textarea.textContent || '(文字なし)'}</div>`; else result += `<div style="white-space:pre-wrap;">${doc.body.textContent || ''}</div>`; return result;
-        }
-
-        function toggleLike(userId, cardKey, event) { event.stopPropagation(); const likeRef = db.ref(`submissions/${currentLessonId}/${userId}/${cardKey}/likes/${currentUser.uid}`); likeRef.once('value', snap => { if (snap.exists()) likeRef.remove(); else likeRef.set(true); }); }
-
-        // ==========================================
-        // 🤏 8. ズーム・履歴・その他
-        // ==========================================
-        let currentZoom = 1.0; const boardContainer = document.getElementById('board-container'), boardContent = document.getElementById('board-content');
-        function applyZoomFromDropdown() { const val = document.getElementById('zoom-select').value; if(val !== 'custom') { currentZoom = parseFloat(val); boardContent.style.transform = `scale(${currentZoom})`; drawLinks(); } }
-        function syncZoomSelect() { boardContent.style.transform = `scale(${currentZoom})`; const select = document.getElementById('zoom-select'), customOpt = document.getElementById('custom-zoom-option'); customOpt.text = `🔍 ${Math.round(currentZoom * 100)}%`; customOpt.value = "custom"; customOpt.style.display = 'block'; select.value = "custom"; drawLinks(); }
-        boardContainer.addEventListener('wheel', (e) => { if (e.ctrlKey || e.metaKey) { e.preventDefault(); currentZoom -= e.deltaY * 0.002; currentZoom = Math.min(Math.max(0.25, currentZoom), 3.0); syncZoomSelect(); } }, {passive: false});
+        // ピンチズーム（タッチデバイス用）
         let initialDist = null, startZoom = 1;
-        boardContainer.addEventListener('touchstart', (e) => { if(e.touches.length === 2) { initialDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY); startZoom = currentZoom; } }, {passive: false});
-        boardContainer.addEventListener('touchmove', (e) => { if (e.touches.length === 2 && initialDist) { e.preventDefault(); const scale = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY) / initialDist; currentZoom = Math.min(Math.max(0.25, startZoom * scale), 3.0); syncZoomSelect(); } }, {passive: false});
-        boardContainer.addEventListener('touchend', () => { initialDist = null; });
+        UI.boardContainer.addEventListener('touchstart', (e) => { 
+            if(e.touches.length === 2) { 
+                initialDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY); 
+                startZoom = STATE.currentZoom; 
+            } 
+        }, {passive: false});
+        
+        UI.boardContainer.addEventListener('touchmove', (e) => { 
+            if (e.touches.length === 2 && initialDist) { 
+                e.preventDefault(); 
+                const scale = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY) / initialDist; 
+                STATE.currentZoom = Math.min(Math.max(0.25, startZoom * scale), 3.0); 
+                syncZoomSelect(); 
+            } 
+        }, {passive: false});
+        UI.boardContainer.addEventListener('touchend', () => { initialDist = null; });
 
+        // 履歴管理（Undo/Redo）
         let undoStack = [], redoStack = [];
         function saveHistory() {
-            const boardHtml = document.getElementById('my-board').innerHTML; const linksData = JSON.stringify(cardLinks);
-            undoStack.push({ html: boardHtml, links: linksData }); if(undoStack.length > 20) undoStack.shift(); redoStack = []; 
-            if (currentLessonId && currentUser && !isMonitorWindow) { db.ref('users/' + currentUser.uid + '/notes/' + currentLessonId).update({ boardHtml: boardHtml, linksData: linksData, timestamp: Date.now() }); }
+            const boardHtml = UI.myBoard.innerHTML; 
+            const linksData = JSON.stringify(STATE.cardLinks);
+            undoStack.push({ html: boardHtml, links: linksData }); 
+            if(undoStack.length > 20) undoStack.shift(); 
+            redoStack = []; 
+            
+            // Firebaseにも自動保存
+            if (STATE.currentLessonId && STATE.user && !isMonitorWindow) { 
+                db.ref('users/' + STATE.user.uid + '/notes/' + STATE.currentLessonId).update({ 
+                    boardHtml: boardHtml, 
+                    linksData: linksData, 
+                    timestamp: Date.now() 
+                }); 
+            }
         }
-        function undoAction() { if(undoStack.length > 1) { redoStack.push(undoStack.pop()); const state = undoStack[undoStack.length - 1]; document.getElementById('my-board').innerHTML = state.html; cardLinks = JSON.parse(state.links); rebindCardEvents(); } else showToast("これ以上戻れません"); }
-        function redoAction() { if(redoStack.length > 0) { const state = redoStack.pop(); undoStack.push(state); document.getElementById('my-board').innerHTML = state.html; cardLinks = JSON.parse(state.links); rebindCardEvents(); } else showToast("やり直す操作がありません"); }
-        function rebindCardEvents() {
+        function undoAction() { 
+            if(undoStack.length > 1) { 
+                redoStack.push(undoStack.pop()); 
+                const state = undoStack[undoStack.length - 1]; 
+                UI.myBoard.innerHTML = state.html; 
+                STATE.cardLinks = JSON.parse(state.links); 
+                rebindAllEvents(); 
+            } else showToast("これ以上戻れません"); 
+        }
+        function redoAction() { 
+            if(redoStack.length > 0) { 
+                const state = redoStack.pop(); 
+                undoStack.push(state); 
+                UI.myBoard.innerHTML = state.html; 
+                STATE.cardLinks = JSON.parse(state.links); 
+                rebindAllEvents(); 
+            } else showToast("やり直す操作がありません"); 
+        }
+
+        // イベントの再バインド（履歴復元時など）
+        function rebindAllEvents() {
+            STATE.selectedCards.clear();
             document.querySelectorAll('.card').forEach(card => {
-                const cardId = card.dataset.id || ('card_' + Date.now() + '_' + Math.floor(Math.random()*1000)); card.dataset.id = cardId;
-                makeDraggable(card, card.querySelector('.card-header')); makeDraggable(card.querySelector('.card-inner-item'), card.querySelector('.card-inner-item'));
-                card.onclick = (e) => { e.stopPropagation(); if (linkingSourceId) { if (linkingSourceId !== card.dataset.id && !cardLinks.some(l => l.from === linkingSourceId && l.to === card.dataset.id)) { cardLinks.push({ from: linkingSourceId, to: card.dataset.id }); drawLinks(); showToast("🔗 つなぎました！"); } linkingSourceId = null; clearSelection(); return; } clearSelection(e); card.classList.add('selected'); selectedCard = card; card.style.zIndex = ++zIndexCounter; };
-                card.ondblclick = (e) => { e.stopPropagation(); clearSelection(); card.classList.add('active-edit'); card.style.zIndex = ++zIndexCounter; };
-                const linkBtn = card.querySelector('.c-tool-btn[title="つなぐ"]'); if (linkBtn) linkBtn.onclick = (event) => startLinking(cardId, event);
-                const imgBtn = card.querySelector('.c-tool-btn[title="画像を追加"]'); if (imgBtn) imgBtn.onclick = (event) => triggerCardImage(imgBtn, event);
-                const imgInput = card.querySelector('input[type="file"]'); if (imgInput) imgInput.onchange = (event) => loadCardImage(imgInput, event);
-                const penBtn = card.querySelector('.c-tool-btn[title="ペン"]'); if (penBtn) penBtn.onclick = (event) => toggleCardPen(penBtn, event);
-                const colorBtn = card.querySelector('.c-tool-btn[title="色"]'); if (colorBtn) colorBtn.onclick = (event) => changeCardColor(colorBtn, event);
-                const delBtn = card.querySelector('.c-tool-btn[title="削除"]'); if (delBtn) delBtn.onclick = (event) => deleteCard(cardId, delBtn, event);
-                const closeX = card.querySelector('.card-header span'); if (closeX) closeX.onclick = (event) => deleteCard(cardId, closeX, event);
-                const ta = card.querySelector('textarea'); if(ta) ta.value = ta.textContent;
-            }); drawLinks();
+                bindCardEvents(card);
+            }); 
+            drawLinks();
         }
 
-        function importPDF(event) { if(event.target.files.length > 0) { showToast("📄 PDFを取り込みました"); addCard(); event.target.value = ''; } }
-        const canvas = document.getElementById('drawing-layer'); const ctx = canvas.getContext('2d'); let isDrawing = false;
-        function togglePen() { isPenMode = !isPenMode; canvas.style.pointerEvents = isPenMode ? 'auto' : 'none'; if(isPenMode) showToast("🖋 ペンモード ON (カードには書けません)"); }
-        function getMousePos(e) { const r = canvas.getBoundingClientRect(); const cx = e.touches ? e.touches[0].clientX : e.clientX; const cy = e.touches ? e.touches[0].clientY : e.clientY; return { x: (cx - r.left) / currentZoom, y: (cy - r.top) / currentZoom }; }
-        canvas.addEventListener('mousedown', e => { if(!isPenMode) return; isDrawing = true; ctx.beginPath(); ctx.moveTo(getMousePos(e).x, getMousePos(e).y); e.preventDefault();});
-        canvas.addEventListener('mousemove', e => { if(!isDrawing || !isPenMode) return; const p = getMousePos(e); ctx.lineWidth=5; ctx.lineCap='round'; ctx.strokeStyle='#e74c3c'; ctx.lineTo(p.x, p.y); ctx.stroke(); e.preventDefault();});
-        canvas.addEventListener('mouseup', () => { isDrawing = false; saveHistory(); });
+        // マイボード・みんなのボード切り替え
+        function toggleBoard() { 
+            UI.myBoard.classList.toggle('active'); 
+            UI.minnaBoard.classList.toggle('active'); 
+            
+            if (STATE.isTeacher) {
+                document.getElementById('teacher-quick-menu').style.display = UI.minnaBoard.classList.contains('active') ? 'block' : 'none';
+            }
+        }
 
+        // トースト通知
+        function showToast(text) { 
+            const toast = document.getElementById('toast-notification'); 
+            toast.innerText = text; 
+            toast.classList.add('show'); 
+            setTimeout(() => toast.classList.remove('show'), 3000); 
+        }
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-        function toggleBoard() { document.getElementById('my-board').classList.toggle('active'); document.getElementById('minna-board').classList.toggle('active'); if (isTeacher) document.getElementById('teacher-quick-menu').style.display = document.getElementById('minna-board').classList.contains('active') ? 'block' : 'none'; }
-        function clearPublicBoard() { if(confirm("本当にみんなのボードを真っ白にしますか？")) { document.getElementById('minna-board').innerHTML = '<h2 style="position:absolute; top:10px; left:20px; color:#ccc;">🌐 みんなのボード</h2>'; showToast("🗑️ リセットしました"); } }
-        function showToast(text) { const toast = document.getElementById('toast-notification'); toast.innerText = text; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 3000); }
+
+        // ボード上の直接ペン描画（簡易版）
+        let isBoardDrawing = false;
+        function toggleBoardPen() { 
+            STATE.isPenMode = !STATE.isPenMode; 
+            const btn = document.getElementById('btn-tool-pen');
+            if(STATE.isPenMode) {
+                btn.style.background = 'var(--primary-dark)'; btn.style.color = 'white';
+                UI.drawCanvas.style.pointerEvents = 'auto'; 
+                showToast("🖋 ペンモード ON（背景に書けます）"); 
+            } else {
+                btn.style.background = '#fff'; btn.style.color = 'var(--primary-color)';
+                UI.drawCanvas.style.pointerEvents = 'none'; 
+            }
+        }
+        function getBoardMousePos(e) { 
+            const r = UI.drawCanvas.getBoundingClientRect(); 
+            const cx = e.touches ? e.touches[0].clientX : e.clientX; 
+            const cy = e.touches ? e.touches[0].clientY : e.clientY; 
+            return { x: (cx - r.left) / STATE.currentZoom, y: (cy - r.top) / STATE.currentZoom }; 
+        }
+        UI.drawCanvas.addEventListener('mousedown', e => { if(!STATE.isPenMode) return; isBoardDrawing = true; ctxDraw.beginPath(); ctxDraw.moveTo(getBoardMousePos(e).x, getBoardMousePos(e).y); e.preventDefault();});
+        UI.drawCanvas.addEventListener('mousemove', e => { if(!isBoardDrawing || !STATE.isPenMode) return; const p = getBoardMousePos(e); ctxDraw.lineWidth=8; ctxDraw.lineCap='round'; ctxDraw.strokeStyle='#e74c3c'; ctxDraw.lineTo(p.x, p.y); ctxDraw.stroke(); e.preventDefault();});
+        UI.drawCanvas.addEventListener('mouseup', () => { isBoardDrawing = false; saveHistory(); });
+        
+        UI.drawCanvas.addEventListener('touchstart', e => { if(!STATE.isPenMode) return; isBoardDrawing = true; ctxDraw.beginPath(); ctxDraw.moveTo(getBoardMousePos(e).x, getBoardMousePos(e).y); e.preventDefault();}, {passive:false});
+        UI.drawCanvas.addEventListener('touchmove', e => { if(!isBoardDrawing || !STATE.isPenMode) return; const p = getBoardMousePos(e); ctxDraw.lineWidth=8; ctxDraw.lineCap='round'; ctxDraw.strokeStyle='#e74c3c'; ctxDraw.lineTo(p.x, p.y); ctxDraw.stroke(); e.preventDefault();}, {passive:false});
+        UI.drawCanvas.addEventListener('touchend', () => { isBoardDrawing = false; saveHistory(); });
+
     </script>
 </body>
 </html>
